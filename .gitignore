@@ -1,2 +1,16 @@
+# Everything
 /*/node_modules
+
+#Backend
 /Backend/.env
+
+#Mobile
+/Mobile/.expo/
+/Mobile/npm-debug.*
+/Mobile/*.jks
+/Mobile/*.p8
+/Mobile/*.p12
+/Mobile/*.key
+/Mobile/*.mobileprovision
+/Mobile/*.orig.*
+/Mobile/web-build/
