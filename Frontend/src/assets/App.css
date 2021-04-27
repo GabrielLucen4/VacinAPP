@@ -1,0 +1,11 @@
+.content {
+  height: 100vh;
+  background-color: var(--fundo);
+}
+
+:root {
+  --texto: white;
+  --fundo: #5CCFE6;
+  --fundo-componentes: #fcfcfc;
+  --botao-hover: #4698a8;
+}

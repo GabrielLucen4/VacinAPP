@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: var(--fundo);
+  padding: 50px 70px;
+  align-items: center;
+}
+
+.page-header, .navbar {
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  color: var(--texto);
+}
+
+.page-header {
+  font-size: 4em;
+  font-weight: bold;
+}
+
+.navbar {
+  font-size: 2em;
+}

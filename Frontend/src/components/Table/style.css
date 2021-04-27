@@ -1,0 +1,58 @@
+.container-table {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: center;
+  background-color: var(--fundo-componentes);
+  border-radius: 10px;
+  padding: 10px;
+  margin: 20px 70px;
+  max-height: 70%;
+}
+
+.table, .botao {
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+}
+
+.table {
+  border-radius: 1px;
+  font-size: 0.9em;
+  border-collapse: separate;
+  width: 100%;
+}
+
+.table thead tr {
+  font-weight: bold;
+  background-color: var(--fundo-componentes);
+  text-align: left;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.table tbody tr:nth-of-type(odd) {
+  background-color: #f3f3f3;
+}
+
+.botao {
+  color: var(--texto);
+  font-weight: bold;
+  background-color: var(--fundo);
+  border: none;
+  border-radius: 3px;
+  padding: 3px 7px;
+}
+
+.botao:hover {
+  background-color: var(--botao-hover);
+}
+
+.botao:active {
+  background-color: var(--fundo);
+}
