@@ -60,11 +60,15 @@ router.post('', (req, res, next) => {
 });
 
 router.get('', (req, res, next) => {
+
   Paciente.find().then(documents => {
-    res.status(200).json({
-      mensagem: 'Tudo OK',
-      pacientes: documents
-    });
+    const pacientes = [];
+    for (let paciente of documents) {
+      const {senha, ...pacienteSemSenha} = paciente._doc;
+      pacientes.push(pacienteSemSenha);
+    }
+    console.log(pacientes)
+    res.status(200).json(pacientes);
   });
 });
 
