@@ -1,11 +1,16 @@
-.content {
-  height: 100vh;
+body {
   background-color: var(--fundo);
+}
+
+.content {
+  max-width: 1980px;
+  margin: 0 auto;
 }
 
 :root {
   --texto: white;
   --fundo: #5CCFE6;
   --fundo-componentes: #fcfcfc;
-  --botao-hover: #4698a8;
+  --hover: #4698a8;
+  --ativo: #56b3c5;
 }

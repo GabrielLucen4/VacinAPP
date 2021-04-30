@@ -3,9 +3,7 @@
   flex: 1;
   align-items: flex-start;
   justify-content: center;
-  background-color: var(--fundo-componentes);
   border-radius: 10px;
-  padding: 10px;
   margin: 20px 70px;
   max-height: 70%;
 }
@@ -21,23 +19,9 @@
   width: 100%;
 }
 
-.table thead tr {
-  font-weight: bold;
-  background-color: var(--fundo-componentes);
-  text-align: left;
-}
-
-.table th,
-.table td {
-    padding: 12px 15px;
-}
-
-.table tbody tr {
-  border-bottom: 1px solid #dddddd;
-}
 
 .table tbody tr:nth-of-type(odd) {
-  background-color: #f3f3f3;
+  background-color: #ebfbff;
 }
 
 .botao {
