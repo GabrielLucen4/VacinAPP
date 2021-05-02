@@ -6,6 +6,6 @@ const pacienteSchema = mongoose.Schema({
   email: {type: String, require: true},
   dataNasc: {type: String, require: true},
   senha: {type: String, require: true},
-})
+});
 
 module.exports = mongoose.model('Paciente', pacienteSchema);

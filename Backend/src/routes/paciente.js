@@ -1,4 +1,5 @@
 const Paciente = require('../models/paciente');
+
 const moment = require('moment');
 const express = require('express');
 const router = express.Router();
@@ -51,7 +52,7 @@ router.post('', (req, res, next) => {
   } else {
     paciente.save().then((pacienteInserido) => {
       res.status(201).json({
-        mensagem: 'Paciente Inserido',
+        mensagem: 'Paciente Inserido(a)',
         id: pacienteInserido._id
       });
     });

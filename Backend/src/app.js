@@ -4,7 +4,9 @@ const express = require('express');
 const cors = require('cors');
 
 const mongoose = require('mongoose');
+
 const pacienteRoute = require('./routes/paciente');
+const enfermeiroRoute = require('./routes/enfermeiro');
 
 const app = express();
 app.use(cors());
@@ -24,5 +26,6 @@ mongoose.connect(`mongodb+srv://${user_db}:${pass_db}@${cluster_db}.nqngu.mongod
 })
 
 app.use('/api/pacientes', pacienteRoute);
+app.use('/api/enfermeiros', enfermeiroRoute);
 
 module.exports = app;
