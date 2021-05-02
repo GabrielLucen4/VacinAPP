@@ -1,6 +1,9 @@
 import React from 'react';
 
+import { Link } from 'react-router-dom';
+
 import './style.css';
+
 
 function Header({ alteraTabela }) {
   return (
@@ -9,8 +12,16 @@ function Header({ alteraTabela }) {
       <nav className="navbar">
         <ul>
           <li><button className="item">Vacinar</button></li>
-          <li><button className="item" onClick={()=> { alteraTabela('pacientes') }}>Pacientes</button></li>
-          <li><button className="item" onClick={()=> { alteraTabela('enfermeiros') }}>Enfermeiros(as)</button></li>
+          <li>
+            <Link to="/">
+              <button className="item" >Pacientes</button>
+            </Link>
+          </li>
+          <li>
+            <Link to="/enfermeiros">
+              <button className="item" >Enfermeiros(as)</button>
+            </Link>
+          </li>
           <li><button className="item">Vacinas</button></li>
         </ul>
       </nav>

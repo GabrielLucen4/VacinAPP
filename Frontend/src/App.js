@@ -1,21 +1,34 @@
-import { useState } from 'react';
+import Header from "./components/Header";
+import Table from "./components/Table";
 
-import Header from './components/Header';
-import Table from './components/Table';
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
-import './assets/App.css';
+import "./assets/App.css";
+import CadastroEnfermeiro from "./components/CadastroEnfermeiro";
 
 function App() {
-  const [tabela, setTabela] = useState('enfermeiros');
-
-  const alteraTabela = (tabela) => {
-    setTabela(tabela);
-  }
-
   return (
     <section className="content">
-      <Header alteraTabela={alteraTabela}/>
-      <Table tabela={tabela}/>
+      <Router>
+        <Header/>
+        <Switch>
+          <Route exact path="/">
+            <Table tabela="pacientes" />
+          </Route>
+          <Route exact path="/pacientes">
+            <Table tabela="pacientes" />
+          </Route>
+          <Route exact path="/enfermeiros">
+            <Table tabela="enfermeiros" />
+          </Route>
+          <Route path="/enfermeiros/cadastrar">
+            <CadastroEnfermeiro />
+          </Route>
+          <Route path="*">
+            <h2>404</h2>
+          </Route>
+        </Switch>
+      </Router>
     </section>
   );
 }

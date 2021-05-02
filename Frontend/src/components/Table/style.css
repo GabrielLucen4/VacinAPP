@@ -1,7 +1,6 @@
 .container-table {
   display: flex;
   flex: 1;
-  align-items: flex-start;
   justify-content: center;
   border-radius: 10px;
   margin: 20px 70px;

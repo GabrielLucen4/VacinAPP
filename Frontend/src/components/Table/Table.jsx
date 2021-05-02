@@ -2,15 +2,21 @@ import React, { useState, useEffect } from "react";
 
 import MUIDataTable from 'mui-datatables';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
 import Tooltip from "@material-ui/core/Tooltip";
+import AddIcon from '@material-ui/icons/Add';
 import Done from "@material-ui/icons/Done";
 import Close from "@material-ui/icons/Close";
+
+import { Link } from 'react-router-dom';
+
+import CadastroEnfermeiro from '../CadastroEnfermeiro';
 
 import "./style.css";
 
 const axios = require("axios");
 
-function Table({ tabela }) {
+function Table({ tabela, alterarPagina }) {
   const [columns, setColumns] = useState([]);
   const [dadosTabela, setDadosTabela] = useState([]);
 
@@ -53,9 +59,9 @@ function Table({ tabela }) {
   useEffect(() => {
     const getDadosTabela = () => {
       axios
-        .get(`http://10.0.1.0:4000/api/${tabela}`)
-        .then((response) => {
-          setDadosTabela(Array.from(response.data));
+      .get(`http://10.0.1.0:4000/api/${tabela}`)
+      .then((response) => {
+        setDadosTabela(Array.from(response.data));
           console.log(1)
           renderCabecalho(Array.from(response.data));
         })
@@ -107,7 +113,20 @@ function Table({ tabela }) {
     selectableRows: 'single',
     responsive: 'vertical',
     rowsPerPageOptions: [],
-    customToolbarSelect: (selectableRows, displayData, setSelectedRows) => {}
+    customToolbarSelect: () => {},
+    customToolbar: () => {
+      if (tabela !== 'pacientes') {
+        return (
+          <Tooltip title="Adicionar">
+            <Link to={`/${tabela}/cadastrar`}>
+              <IconButton>
+                  <AddIcon />
+              </IconButton>
+            </Link>
+          </Tooltip>
+        )
+      }
+    }
   }
 
   return (
