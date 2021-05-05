@@ -22,7 +22,11 @@ function Header({ alteraTabela }) {
               <button className="item" >Enfermeiros(as)</button>
             </Link>
           </li>
-          <li><button className="item">Vacinas</button></li>
+          <li>
+            <Link to="/vacinas">  
+              <button className="item">Vacinas</button>
+            </Link>
+            </li>
         </ul>
       </nav>
     </div>

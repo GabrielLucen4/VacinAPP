@@ -10,13 +10,11 @@ import Close from "@material-ui/icons/Close";
 
 import { Link } from 'react-router-dom';
 
-import CadastroEnfermeiro from '../CadastroEnfermeiro';
-
 import "./style.css";
 
 const axios = require("axios");
 
-function Table({ tabela, alterarPagina }) {
+function Table({ tabela}) {
   const [columns, setColumns] = useState([]);
   const [dadosTabela, setDadosTabela] = useState([]);
 
@@ -59,7 +57,7 @@ function Table({ tabela, alterarPagina }) {
   useEffect(() => {
     const getDadosTabela = () => {
       axios
-      .get(`http://10.0.1.0:4000/api/${tabela}`)
+      .get(`http://local:4000/api/${tabela}`)
       .then((response) => {
         setDadosTabela(Array.from(response.data));
           console.log(1)

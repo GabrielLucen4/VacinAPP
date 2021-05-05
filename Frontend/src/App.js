@@ -24,6 +24,9 @@ function App() {
           <Route path="/enfermeiros/cadastrar">
             <CadastroEnfermeiro />
           </Route>
+          <Route exact path="/vacinas">
+            <Table tabela="vacinas"/>
+          </Route>  
           <Route path="*">
             <h2>404</h2>
           </Route>
