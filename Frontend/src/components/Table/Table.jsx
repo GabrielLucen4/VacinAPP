@@ -57,7 +57,7 @@ function Table({ tabela}) {
   useEffect(() => {
     const getDadosTabela = () => {
       axios
-      .get(`http://local:4000/api/${tabela}`)
+      .get(`http://localhost:4000/api/${tabela}`)
       .then((response) => {
         setDadosTabela(Array.from(response.data));
           console.log(1)
