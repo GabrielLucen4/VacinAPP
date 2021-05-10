@@ -1,0 +1,25 @@
+GET http://localhost:4000/api/enfermeiros
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDhmMjMwMDg5YzhkMTE5Nzg1ZGRmNTkiLCJub21lIjoiTmF0aGFuIE1hcnJlZ2EiLCJlbWFpbCI6Im5hdGhhbkBlbWFpbC5jb20iLCJhZG1pbiI6ZmFsc2UsInJlZnJlc2hUb2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpmYVdRaU9pSTJNRGhtTWpNd01EZzVZemhrTVRFNU56ZzFaR1JtTlRraUxDSnViMjFsSWpvaVRtRjBhR0Z1SUUxaGNuSmxaMkVpTENKbGJXRnBiQ0k2SW01aGRHaGhia0JsYldGcGJDNWpiMjBpTENKaFpHMXBiaUk2Wm1Gc2MyVXNJbWxoZENJNk1UWXlNRFl3TWpRNU4zMC5JaFRYMXE2NUswMDd2eGJBRXJVMXR5NVZSaGtxdk5mZWRkX1V4NjZFNmZZIiwiaWF0IjoxNjIwNjAyNDk4LCJleHAiOjE2MjA2MDI1MTh9.Grm1N7z-rwPhG9OhTM7To9MppUYVZmAnEeozk6LFkEg
+
+###
+
+POST http://localhost:5000/token
+Content-Type: "application/json"
+
+{
+    "tipo": "enfermeiros",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDhmMjMwMDg5YzhkMTE5Nzg1ZGRmNTkiLCJub21lIjoiTmF0aGFuIE1hcnJlZ2EiLCJlbWFpbCI6Im5hdGhhbkBlbWFpbC5jb20iLCJhZG1pbiI6ZmFsc2UsInJlZnJlc2hUb2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpmYVdRaU9pSTJNRGhtTWpNd01EZzVZemhrTVRFNU56ZzFaR1JtTlRraUxDSnViMjFsSWpvaVRtRjBhR0Z1SUUxaGNuSmxaMkVpTENKbGJXRnBiQ0k2SW01aGRHaGhia0JsYldGcGJDNWpiMjBpTENKaFpHMXBiaUk2Wm1Gc2MyVXNJbWxoZENJNk1UWXlNRFl3TWpRNU4zMC5JaFRYMXE2NUswMDd2eGJBRXJVMXR5NVZSaGtxdk5mZWRkX1V4NjZFNmZZIiwiaWF0IjoxNjIwNjAyNDk4fQ.7tMYJK-Ky4R8B1aC8s8-unAZOLyMsubRWwnVUdV7ZGQ"
+}
+
+###
+
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+    "tipo": "enfermeiros",
+    "user": {
+        "coren": "456.654.789-SP",
+        "senha": "carol"
+    }
+}

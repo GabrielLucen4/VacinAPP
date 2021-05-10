@@ -5,7 +5,8 @@ const enfermeiroSchema = mongoose.Schema({
   email: {type: String, require: true},
   coren: {type: String, require: true},
   senha: {type: String, require: true},
-  admin: {type: Boolean, require: true}
+  admin: {type: Boolean, require: true},
+  refreshToken: {type: String, require: false}
 })
 
 module.exports = mongoose.model('enfermeiro', enfermeiroSchema);
