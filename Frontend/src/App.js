@@ -3,6 +3,7 @@ import Login from "./components/Login";
 import Table from "./components/Table";
 import CadastroEnfermeiro from "./components/CadastroEnfermeiro";
 import CadastroVacina from './components/CadastroVacina';
+import CadastroVacinacao from './components/CadastroVacinacao';
 import StoreProvider from './components/Store/Provider';
 
 
@@ -34,6 +35,9 @@ function App() {
             </Route>
             <Route path="/vacinas/cadastrar">
               <CadastroVacina />
+            </Route>
+            <Route path="/vacinacao/cadastrar">
+              <CadastroVacinacao />
             </Route>
             <Route path="*">
               <h2>404</h2>

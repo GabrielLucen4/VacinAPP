@@ -32,7 +32,9 @@ function Header({ alteraTabela }) {
           <nav className="navbar">
             <ul>
               <li>
-                <button className="item">Vacinar</button>
+                <Link to="/vacinacao/cadastrar">
+                  <button className="item">Vacinar</button>
+                </Link>
               </li>
               <li>
                 <Link to="/pacientes">
