@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { createMuiTheme, withStyles, ThemeProvider } from "@material-ui/core/styles";
 import { TextField, Button, Checkbox, FormControlLabel } from "@material-ui/core";
 
-import { enviaRegistro } from "../../controllers/enfermeiros";
+import { enviaRegistro, getByField } from "../../controllers/enfermeiros";
 import "./style.css";
 
 function CadastroEnfermeiro(props) {
@@ -27,17 +27,17 @@ function CadastroEnfermeiro(props) {
     confirmarSenha: false
   });
   const [preenchido, setPreenchido] =  useState({
-    nome: false,
-    email: false,
-    coren: false,
-    senha: false,
-    confirmarSenha: false
+    nome: {value: false, message: ""},
+    email: {value: false, message: ""},
+    coren: {value: false, message: ""},
+    senha: {value: false, message: ""},
+    confirmarSenha: {value: false, message: ""}
   });
 
 
   const validaFormulario = (preenchido) =>{
     for (let [key, value] of Object.entries(preenchido)) {
-      if (!value) {
+      if (!value.value) {
         setFormularioValido(false)
         return;
       }
@@ -45,56 +45,71 @@ function CadastroEnfermeiro(props) {
     setFormularioValido(true);
   }
 
-  const validaNome = (nome) => {
+  const validaNome = (nome, message="") => {
     if (nome.split(" ").length >= 2) {
-      setPreenchido({...preenchido, nome:true})
-      validaFormulario({...preenchido, nome: true})
+      setPreenchido({...preenchido, nome: {value: true, message: ""}})
+      validaFormulario({...preenchido, nome: {value: true, message: ""}})
     } else {
-      setPreenchido({...preenchido, nome:false})
-      validaFormulario({...preenchido, nome: false})
+      setPreenchido({...preenchido, nome: {value: false, message }})
+      validaFormulario({...preenchido, nome: {value: false, message}})
     }
   }
 
 
-  const validaEmail = (email) => {
+  const validaEmail = (email, message="") => {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (re.test(email.toLowerCase())) {
-      setPreenchido({...preenchido, email: true});
-      validaFormulario({...preenchido, email: true});
+      getByField('email', email).then((emails) => {
+        console.log(emails)
+        if (!emails.erros && emails.registros.length === 0 ){
+          setPreenchido({...preenchido, email: {value: true, message: ""}});
+          validaFormulario({...preenchido, email: {value: true, message: ""}});
+        } else {
+          setPreenchido({...preenchido, email: {value: false, message: "E-mail já cadastrado."}});
+          validaFormulario({...preenchido, email: {value: false, message: "E-mail já cadastrado."}});
+        }
+      });
     } else {
-      setPreenchido({...preenchido, email:false});
-      validaFormulario({...preenchido, email:false});
+      setPreenchido({...preenchido, email: { value: false, message }});
+      validaFormulario({...preenchido, email:{ value: false, message }});
     }
   }
 
-  const validaCoren = (coren) => {
+  const validaCoren = (coren, message="") => {
     const re = /^([0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[a-zA-Z]{2})$/;
-    if (re.test(coren.toUpperCase())) {
-      setPreenchido({...preenchido, coren: true});
-      validaFormulario({...preenchido, coren: true});
+    if (re.test(coren.toUpperCase()) && coren.split('-').length === 2) {
+      getByField('coren', coren).then((corens) => {
+        if (!corens.erros && corens.registros.length === 0 ){
+          setPreenchido({...preenchido, coren: {value: true, message: ""}});
+          validaFormulario({...preenchido, coren: {value: true, message: ""}});
+        } else {
+          setPreenchido({...preenchido, coren: {value: false, message: "COREN já cadastrado."}});
+          validaFormulario({...preenchido, coren: {value: false, message: "COREN já cadastrado."}});
+        }
+      })
     } else {
-      setPreenchido({...preenchido, coren: false});
-      validaFormulario({...preenchido, coren: false});
+      setPreenchido({...preenchido, coren: {value: false, message}});
+      validaFormulario({...preenchido, coren: {value: false, message}});
     }
   }
 
-  const validaSenha = (senha) => {
+  const validaSenha = (senha, message="") => {
     if(senha.length >= 5) {
-      setPreenchido({...preenchido, senha: true});
-      validaFormulario({...preenchido, senha: true});
+      setPreenchido({...preenchido, senha: {value: true, message: ""}});
+      validaFormulario({...preenchido, senha: {value: true, message: ""}});
     } else {
-      setPreenchido({...preenchido, senha:false});
-      validaFormulario({...preenchido, senha:false});
+      setPreenchido({...preenchido, senha: {value: false, message}});
+      validaFormulario({...preenchido, senha: {value: false, message}});
     }
   }
 
-  const validaConfirmarSenha = (confirmarSenha) => {
+  const validaConfirmarSenha = (confirmarSenha, message="") => {
     if (confirmarSenha === senha) {
-      setPreenchido({...preenchido, confirmarSenha: true});
-      validaFormulario({...preenchido, confirmarSenha: true});
+      setPreenchido({...preenchido, confirmarSenha: {value: true, message: ""}});
+      validaFormulario({...preenchido, confirmarSenha: {value: true, message: ""}});
     } else {
-      setPreenchido({...preenchido, confirmarSenha: false});
-      validaFormulario({...preenchido, confirmarSenha: false});
+      setPreenchido({...preenchido, confirmarSenha: {value: false, message}});
+      validaFormulario({...preenchido, confirmarSenha: {value: false, message}});
     }
   }
 
@@ -115,7 +130,7 @@ function CadastroEnfermeiro(props) {
           <TextField
             label="Nome"
             id="nome"
-            helperText="Nome e Sobrenome"
+            helperText={preenchido.nome.message}
             variant="outlined"
             margin="normal"
             error={erros.nome}
@@ -126,14 +141,15 @@ function CadastroEnfermeiro(props) {
               validaNome(nome);
             }}
             onBlur={() => {
-              setErros({...erros, nome: !preenchido.nome})
+              validaNome(nome, "É necessário pelo menos um sobrenome.")
+              setErros({...erros, nome: !preenchido.nome.value})
             }}
           />
           <TextField
             label="E-mail"
             id="email"
             type="email"
-            helperText="nathan@email.com"
+            helperText={preenchido.email.message}
             variant="outlined"
             margin="normal"
             error={erros.email}
@@ -145,13 +161,14 @@ function CadastroEnfermeiro(props) {
               validaEmail(email);
             }}
             onBlur={() => {
-              setErros({...erros, email: !preenchido.email});
+              validaEmail(email, "E-mail inválido.")
+              setErros({...erros, email: !preenchido.email.value});
             }}
           />
           <TextField
             label="COREN"
             id="coren"
-            helperText="000.000.000-SP"
+            helperText={preenchido.coren.message}
             error={erros.coren}
             variant="outlined"
             margin="normal"
@@ -165,7 +182,8 @@ function CadastroEnfermeiro(props) {
               validaCoren(coren);
             }}
             onBlur={() => {
-              setErros({...erros, coren: !preenchido.coren});
+              validaCoren(coren, "COREN inválido! Siga o modelo: 000.000.000-SP.");
+              setErros({...erros, coren: !preenchido.coren.value});
             }}
           />
           <div className="senhas">
@@ -175,7 +193,7 @@ function CadastroEnfermeiro(props) {
               variant="outlined"
               margin="normal"
               type="password"
-              helperText="Pelo menos 5 caracteres"
+              helperText={preenchido.senha.message}
               error={erros.senha}
               style={{ marginRight: 12 }}
               InputProps={{ className: classes.input }}
@@ -186,7 +204,8 @@ function CadastroEnfermeiro(props) {
                 validaSenha(senha);
               }}
               onBlur={() => {
-                setErros({...erros, senha: !preenchido.senha})
+                validaSenha(senha, "Senha deve conter pelo menos 5 caractéres.");
+                setErros({...erros, senha: !preenchido.senha.value});
               }}
             />
             <TextField
@@ -195,7 +214,7 @@ function CadastroEnfermeiro(props) {
               variant="outlined"
               margin="normal"
               type="password"
-              helperText="Deve ser igual ao campo senha"
+              helperText={preenchido.confirmarSenha.message}
               error={erros.confirmarSenha}
               style={{ marginLeft: 12 }}
               InputProps={{ className: classes.input }}
@@ -206,7 +225,8 @@ function CadastroEnfermeiro(props) {
                 validaConfirmarSenha(confirmarSenha);
               }}
               onBlur={() => {
-                setErros({...erros, confirmarSenha: !preenchido.confirmarSenha})
+                validaConfirmarSenha(confirmarSenha, "A confirmação da senha deve ser igual a senha.");
+                setErros({...erros, confirmarSenha: !preenchido.confirmarSenha.value});
               }}
             />
           </div>

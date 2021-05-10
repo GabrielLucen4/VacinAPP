@@ -1,0 +1,35 @@
+.container-cadastro {
+  display: flex;
+  margin: 50px auto;
+  width: 600px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titulo-cadastro {
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  font-size: 2em;
+  font-weight: 500;
+  color: var(--texto);
+}
+
+.formulario-cadastro {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 20px;
+  background-color: var(--fundo-componentes);
+  border-radius: 10px;
+  margin: 20px;
+  justify-content: center;
+}
+
+.lote-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reset-a {
+  color: white;
+  text-decoration: none;
+}

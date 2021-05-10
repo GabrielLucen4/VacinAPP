@@ -1,0 +1,110 @@
+import React, { useState, useContext, useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
+
+import PropTypes from "prop-types";
+import {
+  createMuiTheme,
+  withStyles,
+  ThemeProvider,
+} from "@material-ui/core/styles";
+import {
+  TextField,
+  Button
+} from "@material-ui/core";
+
+import StoreContext from "../Store/Context";
+import { login } from "../../controllers/enfermeiros";
+import { tokenValidation } from "../../controllers/token";
+
+import './style.css';
+
+function Login(props) {
+  const { classes } = props;
+
+  const [coren, setCoren] = useState("");
+  const [senha, setSenha] = useState("");
+  const { token, setToken } = useContext(StoreContext);
+  const history = useHistory();
+
+  const theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: '#5CCFE6'
+      }
+    },
+    spacing: 8
+  });
+
+
+  useEffect(() => {
+    const accessAllowed = () => {
+      return tokenValidation(token).then(status => {
+        if (status === 200) history.push("/pacientes");
+      })
+    }
+    accessAllowed();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+
+    login(coren, senha).then(({ data }) => {
+      console.log(data);
+      setToken(data.accessToken);
+      history.push('/pacientes');
+    });
+
+  }
+
+  return (
+    <div className="container-login">
+      <h2 className="titulo-login">VacinApp</h2>
+      <ThemeProvider theme={theme}>
+        <form className="formulario-login" onSubmit={onSubmit}>
+          <TextField
+            label="COREN"
+            id="coren"
+            variant="outlined"
+            margin="normal"
+            InputProps={{ className: classes.input }}
+            onChange={(event) => {
+              setCoren(event.target.value);
+            }}
+          />
+          <TextField
+            label="Senha"
+            id="senha"
+            variant="outlined"
+            margin="normal"
+            type="password"
+            style={{ marginRight: 12 }}
+            InputProps={{ className: classes.input }}
+            fullWidth
+            onChange={(event) => {
+              setSenha(event.target.value);
+            }}
+          />
+          <Button variant="contained" color="primary" size="large" type="submit">
+            <Link className="reset-a" to="/pacientes">
+              Login
+            </Link>
+          </Button>
+        </form>
+      </ThemeProvider>
+    </div>
+  );
+}
+
+Login.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+const styles = {
+  input: {
+    borderRadius: 10,
+  },
+};
+
+export default withStyles(styles)(Login);

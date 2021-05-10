@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import MUIDataTable from 'mui-datatables';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
@@ -8,13 +8,19 @@ import AddIcon from '@material-ui/icons/Add';
 import Done from "@material-ui/icons/Done";
 import Close from "@material-ui/icons/Close";
 
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+
+import StoreContext from '../Store/Context';
+
+import { tokenValidation } from "../../controllers/token";
 
 import "./style.css";
 
 const axios = require("axios");
 
-function Table({ tabela}) {
+function Table({ tabela }) {
+  const history = useHistory();
+
   const [columns, setColumns] = useState([]);
   const [dadosTabela, setDadosTabela] = useState([]);
 
@@ -24,8 +30,13 @@ function Table({ tabela}) {
     email: "E-mail",
     dataNasc: "Data de Nascimento",
     coren: "COREN",
-    admin: "Administrador"
+    admin: "Administrador",
+    tipo: "Tipo",
+    dose: "Dose",
+    lote: "Lote",
+    quantidade: "Quantidade"
   }
+  const { token } = useContext(StoreContext);
 
   const optionsColumns = {
     admin: {
@@ -55,9 +66,16 @@ function Table({ tabela}) {
   }
 
   useEffect(() => {
+    const accessAllowed = () => {
+      return tokenValidation(token).then(status => {
+        if (status === 403) {
+          history.push('/');
+        }
+      })
+    }
     const getDadosTabela = () => {
       axios
-      .get(`http://localhost:4000/api/${tabela}`)
+      .get(`http://localhost:4000/api/${tabela}`, { headers: { "Authorization": `Bearer ${token}` }})
       .then((response) => {
         setDadosTabela(Array.from(response.data));
           console.log(1)
@@ -67,6 +85,7 @@ function Table({ tabela}) {
           console.log(err);
         });
     };
+    accessAllowed();
     getDadosTabela();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabela]);
