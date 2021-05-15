@@ -3,12 +3,16 @@ import React, { useState } from "react";
 import {
   View,
   StyleSheet,
+  Dimensions
 } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 
 import { enviaRegistro } from "../../controllers/paciente";
 
 const moment = require('moment');
+
+const ScreenHeight = Dimensions.get("window").height;
+
 export default function RegisterForm() {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
@@ -122,133 +126,135 @@ export default function RegisterForm() {
   };
 
   return (
-    <View style={styles.campos}>
-      <TextInput
-        label="Nome Completo"
-        style={styles.input}
-        mode="outlined"
-        error={erros.nome}
-        onChangeText={(nome) => {
-          nome = nome.trim();
-          setNome(nome);
-          validaNome(nome);
-        }}
-        onBlur={() => {
-          setErros({...erros, nome: !preenchido.nome})
-        }}
-      />
-      <TextInput
-        label="CPF"
-        style={styles.input}
-        keyboardType="numeric"
-        mode="outlined"
-        error={erros.cpf}
-        value={cpf}
-        onChangeText={(cpf) => {
-          cpf = cpf.trim();
-          if (cpf.length > 14) {
-            cpf = cpf.substring(0, 14);
-          }
-          cpf = cpf.replace(/\D/g, "");
-          cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-          cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-          cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-          setCpf(cpf);
-          validaCpf(cpf);
-        }}
-        onBlur={() => {
-          setErros({...erros, cpf: !preenchido.cpf})
-        }}
-      />
-      <TextInput
-        label="E-mail"
-        style={styles.input}
-        keyboardType="email-address"
-        mode="outlined"
-        error={erros.email}
-        onChangeText={(email) => {
-          email = email.trim();
-          setEmail(email.toLowerCase());
-          validaEmail(email);
-        }}
-        onBlur={() => {
-          setErros({...erros, email: !preenchido.email})
-        }}
-      />
-      <TextInput
-        label="Data de nascimento"
-        style={styles.input}
-        keyboardType="numeric"
-        mode="outlined"
-        error={erros.dataNasc}
-        value={dataNasc}
-        onChangeText={(dataNasc) => {
-          dataNasc = dataNasc.trim();
-          dataNasc = dataNasc.replace(/\D/g, "");
-          dataNasc = dataNasc.replace(/(\d{2})(\d)/, "$1/$2");
-          dataNasc = dataNasc.replace(/(\d{2})(\d)/, "$1/$2");
-          dataNasc = dataNasc.replace(/(\d{4})(\d)/, "$1");
-          setDataNasc(dataNasc);
-          validaData(dataNasc);
-        }}
-        onBlur={() => {
-          setErros({...erros, dataNasc: !preenchido.dataNasc})
-        }}
-      />
-      <TextInput
-        right={
-          <TextInput.Icon
-          name={mostraSenha ? "eye-off" : "eye-outline"}
-          onPress={inverteMostraSenha}
-          />
-        }
-        label="Senha"
-        style={styles.input}
-        secureTextEntry={!mostraSenha}
-        mode="outlined"
-        error={erros.senha}
-        onChangeText={(senha) => {
-          senha = senha.trim();
-          setSenha(senha);
-          validaSenha(senha);
-        }}
-        onBlur={() => {
-          setErros({...erros, senha: !preenchido.senha})
-        }}
-      />
-      <TextInput
-        right={
-          <TextInput.Icon
-          name={mostraConfirmarSenha ? "eye-off" : "eye-outline"}
-          onPress={inverteMostraConfirmarSenha}
-          />
-        }
-        label="Confirmar Senha"
-        style={styles.input}
-        secureTextEntry={!mostraConfirmarSenha}
-        mode="outlined"
-        error={erros.confirmarSenha}
-        onChangeText={(confirmarSenha) => {
-          confirmarSenha = confirmarSenha.trim();
-          setConfirmarSenha(confirmarSenha);
-          validaConfirmarSenha(confirmarSenha);
-        }}
-        onBlur={() => {
-          setErros({...erros, confirmarSenha: !preenchido.confirmarSenha})
-        }}
-      />
-      <View style={styles.button}>
-        <Button
-          icon="account-plus"
-          mode="contained"
-          disabled={!formularioValido}
-          onPress={() => {
-            enviaRegistro(nome, cpf, dataNasc, email, senha);
+    <View style={styles.fundo}>
+      <View style={styles.campos}>
+        <TextInput
+          label="Nome Completo"
+          style={styles.input}
+          mode="outlined"
+          error={erros.nome}
+          onChangeText={(nome) => {
+            nome = nome.trim();
+            setNome(nome);
+            validaNome(nome);
           }}
-          labelStyle={styles.textButton}
-        >
-          Registrar-se
-        </Button>
+          onBlur={() => {
+            setErros({...erros, nome: !preenchido.nome})
+          }}
+        />
+        <TextInput
+          label="CPF"
+          style={styles.input}
+          keyboardType="numeric"
+          mode="outlined"
+          error={erros.cpf}
+          value={cpf}
+          onChangeText={(cpf) => {
+            cpf = cpf.trim();
+            if (cpf.length > 14) {
+              cpf = cpf.substring(0, 14);
+            }
+            cpf = cpf.replace(/\D/g, "");
+            cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+            cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+            cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            setCpf(cpf);
+            validaCpf(cpf);
+          }}
+          onBlur={() => {
+            setErros({...erros, cpf: !preenchido.cpf})
+          }}
+        />
+        <TextInput
+          label="E-mail"
+          style={styles.input}
+          keyboardType="email-address"
+          mode="outlined"
+          error={erros.email}
+          onChangeText={(email) => {
+            email = email.trim();
+            setEmail(email.toLowerCase());
+            validaEmail(email);
+          }}
+          onBlur={() => {
+            setErros({...erros, email: !preenchido.email})
+          }}
+        />
+        <TextInput
+          label="Data de nascimento"
+          style={styles.input}
+          keyboardType="numeric"
+          mode="outlined"
+          error={erros.dataNasc}
+          value={dataNasc}
+          onChangeText={(dataNasc) => {
+            dataNasc = dataNasc.trim();
+            dataNasc = dataNasc.replace(/\D/g, "");
+            dataNasc = dataNasc.replace(/(\d{2})(\d)/, "$1/$2");
+            dataNasc = dataNasc.replace(/(\d{2})(\d)/, "$1/$2");
+            dataNasc = dataNasc.replace(/(\d{4})(\d)/, "$1");
+            setDataNasc(dataNasc);
+            validaData(dataNasc);
+          }}
+          onBlur={() => {
+            setErros({...erros, dataNasc: !preenchido.dataNasc})
+          }}
+        />
+        <TextInput
+          right={
+            <TextInput.Icon
+            name={mostraSenha ? "eye-off" : "eye-outline"}
+            onPress={inverteMostraSenha}
+            />
+          }
+          label="Senha"
+          style={styles.input}
+          secureTextEntry={!mostraSenha}
+          mode="outlined"
+          error={erros.senha}
+          onChangeText={(senha) => {
+            senha = senha.trim();
+            setSenha(senha);
+            validaSenha(senha);
+          }}
+          onBlur={() => {
+            setErros({...erros, senha: !preenchido.senha})
+          }}
+        />
+        <TextInput
+          right={
+            <TextInput.Icon
+            name={mostraConfirmarSenha ? "eye-off" : "eye-outline"}
+            onPress={inverteMostraConfirmarSenha}
+            />
+          }
+          label="Confirmar Senha"
+          style={styles.input}
+          secureTextEntry={!mostraConfirmarSenha}
+          mode="outlined"
+          error={erros.confirmarSenha}
+          onChangeText={(confirmarSenha) => {
+            confirmarSenha = confirmarSenha.trim();
+            setConfirmarSenha(confirmarSenha);
+            validaConfirmarSenha(confirmarSenha);
+          }}
+          onBlur={() => {
+            setErros({...erros, confirmarSenha: !preenchido.confirmarSenha})
+          }}
+        />
+        <View style={styles.button}>
+          <Button
+            icon="account-plus"
+            mode="contained"
+            disabled={!formularioValido}
+            onPress={() => {
+              enviaRegistro(nome, cpf, dataNasc, email, senha);
+            }}
+            labelStyle={styles.textButton}
+          >
+            Registrar-se
+          </Button>
+        </View>
       </View>
     </View>
   );
@@ -256,8 +262,12 @@ export default function RegisterForm() {
 
 const styles = StyleSheet.create({
   campos: {
-    padding: 24,
+    backgroundColor: "#FFF",
+    padding: 12,
     flexDirection: "column",
+    margin: 24,
+    marginTop: 0,
+    borderRadius: 20
   },
   input: {
     marginBottom: 10,

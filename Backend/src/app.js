@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const pacienteRoute = require('./routes/paciente');
 const enfermeiroRoute = require('./routes/enfermeiro');
 const vacinaRoute = require('./routes/vacina');
+const vacinacaoRoute = require('./routes/vacinacao');
 
 const app = express();
 app.use(cors());
@@ -29,5 +30,6 @@ mongoose.connect(`mongodb+srv://${user_db}:${pass_db}@${cluster_db}.nqngu.mongod
 app.use('/api/pacientes', pacienteRoute);
 app.use('/api/enfermeiros', enfermeiroRoute);
 app.use('/api/vacinas', vacinaRoute);
+app.use('/api/vacinacao', vacinacaoRoute);
 
 module.exports = app;

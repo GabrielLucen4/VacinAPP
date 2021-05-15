@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Modal from 'react-modal';
 import QRCode from 'react-qr-code';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import PropTypes from "prop-types";
 import {
@@ -12,12 +12,17 @@ import {
 import { TextField, Button } from "@material-ui/core";
 import AutoComplete from "@material-ui/lab/Autocomplete";
 
+import StoreContext from '../Store/Context';
+import { tokenValidation } from "../../controllers/token";
 import { getVacinas } from "../../controllers/vacinas";
 import { getPacientes } from "../../controllers/pacientes";
+import { encryptQrCode } from "../../controllers/vacinacao";
 import "./style.css";
+
 
 function CadastroVacinacao(props) {
   const { classes } = props;
+  const history = useHistory();
 
   const [vacina, setVacina] = useState({});
   const [paciente, setPaciente] = useState({});
@@ -45,7 +50,17 @@ function CadastroVacinacao(props) {
     dataRetorno: false,
   });
 
+  const { token } = useContext(StoreContext);
+  const [valido, setValido] = useState(false);
   useEffect(() => {
+    const accessAllowed = () => {
+      return tokenValidation(token).then(status => {
+        if (status === 403) {
+          history.push('/');
+        }
+      })
+    }
+    accessAllowed();
     getVacinas().then((response) => {
       const vacinas = [];
       for (let vacina of response) {
@@ -145,9 +160,12 @@ function CadastroVacinacao(props) {
   }
 
   const geraQrCode = () => {
-    const info = {vacina, paciente, dose, dataRetorno};
-    setQRCodeInfo(JSON.stringify(info));
-    setModalIsOpen(true);
+    const info = {vacina, paciente, dose, dataRetorno, vacinador: token};
+    encryptQrCode(info, token).then(encryptedInfo => {
+      console.log(encryptedInfo)
+      setQRCodeInfo(encryptedInfo);
+      setModalIsOpen(true);
+    })
   }
 
   return (
@@ -166,7 +184,7 @@ function CadastroVacinacao(props) {
         <QRCode
           value={qrCodeInfo}
           size={450}
-          level={"H"}
+          level={"L"}
           includeMargin={true}/>
       </Modal>
       <h2 className="titulo-cadastro">Vacinar</h2>
