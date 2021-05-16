@@ -10,6 +10,7 @@ export default StyleSheet.create({
 export const colors = {
   background: '#FFF',
   primary: '#49A7C2',
+  secondary: '#2d819f',
   accent: '#ebae34',
   danger: '#Ed1c24',
 }
