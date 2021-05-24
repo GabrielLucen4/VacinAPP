@@ -9,7 +9,9 @@ import Display from 'react-native-display';
 
 export default function Register() {
 
+  const [margin] = useState(new Animated.Value(35));
   const [offset] = useState(new Animated.ValueXY({x:0, y:90}));
+  const [offsetLogo] = useState(new Animated.ValueXY({x:0, y:0}));
   const [opacity] = useState(new Animated.Value(0));
   const [display, setDisplay] = useState(true);
 
@@ -34,21 +36,47 @@ export default function Register() {
 
   const keyboardDidShow = () => {
     setDisplay(false);
+    Animated.parallel([
+      Animated.timing(margin, {
+        toValue: -120,
+        duration: 400,
+        useNativeDriver: false
+      }),
+      Animated.spring(offsetLogo.y, {
+        toValue: -200,
+        speed: 4,
+        bounciness: 15,
+        useNativeDriver: false
+      })
+    ]).start()
   }
 
   const keyboardDidHide = () => {
     setDisplay(true);
+    Animated.parallel([
+      Animated.timing(margin, {
+        toValue: 35,
+        duration: 150,
+        useNativeDriver: false
+      }),
+      Animated.spring(offsetLogo.y, {
+        toValue: 0,
+        speed: 0.5,
+        bounciness: 10,
+        useNativeDriver: false
+      })
+    ]).start()
   }
 
   return (
     <>
       <StatusBar/>
-      <Display enterDuration={500} enter="fadeIn" enable={display} style={styles.containerLogo}>
+      <Animated.View style={[styles.containerLogo, {transform: [{translateY: offsetLogo.y}]}]}>
           <Image
             style={styles.image}
             source={require('../../assets/icon.png')}
           />
-      </Display>
+      </Animated.View>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <Animated.View style={[
           styles.container,
@@ -59,7 +87,7 @@ export default function Register() {
             ]
           }
         ]}>
-          <Text style={styles.title}>VacinApp</Text>
+          <Animated.Text style={[styles.title, { marginTop: margin }]}>VacinApp</Animated.Text>
           <View style={styles.subContainer}>
             <RegisterForm />
           </View>
@@ -72,7 +100,7 @@ export default function Register() {
 const styles = StyleSheet.create({
   containerLogo: {
     flex: 0.3,
-    marginTop: 80,
+    marginTop: 60,
     marginBottom: 0,
     justifyContent: "center",
     alignItems: "center"
@@ -86,7 +114,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     padding: 10,
     fontSize: 36,
-    marginTop: 35
 
   },
   container: {
