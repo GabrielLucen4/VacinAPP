@@ -37,7 +37,15 @@ function validaPaciente(paciente) {
 }
 
 
+router.post('/login', (req, res, next) => {
+  Paciente.find({email: req.body.email, senha: req.body.senha}).then(documents => {
+    console.log(documents)
+    res.status(200).json(documents);
+  })
+})
+
 router.post('', (req, res, next) => {
+  console.log(req.body)
   const paciente = new Paciente({
     nome: req.body.nome.trim(),
     cpf: req.body.cpf.trim(),

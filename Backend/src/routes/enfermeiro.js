@@ -1,4 +1,4 @@
-const authenticateToken = require('../tokenValidation');
+const { authenticateTokenEnfermeiro } = require('../tokenValidation');
 
 const Enfermeiro = require('../models/enfermeiro');
 const express = require('express');
@@ -63,7 +63,7 @@ router.get('/token/:refreshToken', (req, res, next) => {
   })
 })
 
-router.patch('/token', authenticateToken, (req, res, next) => {
+router.patch('/token', authenticateTokenEnfermeiro, (req, res, next) => {
   Enfermeiro.findOneAndUpdate({ _id: req.body._id }, { refreshToken: req.body.refreshToken }).then(response => {
     res.status(200).send(response);
   }).catch(error => {
@@ -71,7 +71,7 @@ router.patch('/token', authenticateToken, (req, res, next) => {
   })
 })
 
-router.get('', authenticateToken, (req, res, next) => {
+router.get('', authenticateTokenEnfermeiro, (req, res, next) => {
   Enfermeiro.find().then(documents => {
     const enfermeiros = [];
     for (let enfermeiro of documents) {
@@ -83,7 +83,7 @@ router.get('', authenticateToken, (req, res, next) => {
   })
 });
 
-router.get('/email/:email', authenticateToken, (req, res, next) => {
+router.get('/email/:email', authenticateTokenEnfermeiro, (req, res, next) => {
   Enfermeiro.find({email: req.params.email}).then(documents => {
     const enfermeiros = [];
     for (let enfermeiro of documents) {
@@ -95,7 +95,7 @@ router.get('/email/:email', authenticateToken, (req, res, next) => {
   })
 });
 
-router.get('/coren/:coren', authenticateToken, (req, res, next) => {
+router.get('/coren/:coren', authenticateTokenEnfermeiro, (req, res, next) => {
   Enfermeiro.find({coren: req.params.coren}).then(documents => {
     const enfermeiros = [];
     for (let enfermeiro of documents) {

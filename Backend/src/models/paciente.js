@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+mongoose.set('useFindAndModify', false);
 const pacienteSchema = mongoose.Schema({
   nome: {type: String, require: true},
   cpf: {type: String, require: true},

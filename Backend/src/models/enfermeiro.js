@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+mongoose.set('useFindAndModify', false);
 const enfermeiroSchema = mongoose.Schema({
   nome: {type: String, require: true},
   email: {type: String, require: true},

@@ -6,8 +6,12 @@ const router = express.Router();
 function validaVacina(vacina) {
   const resultados = []
 
-  if (vacina.nome.length <= 0) {
-    resultados.push({ mensagem: 'Nome vazio.' });
+  if (vacina.doenca.length <= 0) {
+    resultados.push({ mensagem: 'Nome da doença vazia.' });
+  }
+
+  if (vacina.fabricante.length <= 0) {
+    resultados.push({ mensagem: 'Nome do fabricante vazio.' });
   }
 
   if (vacina.dose > 0) {
@@ -22,16 +26,26 @@ function validaVacina(vacina) {
     resultados.push({ mensagem: 'Quantidade não pode ser negativa.' });
   }
 
+  if (vacina.prazoMaxEntreDoses <= 0) {
+    resultados.push({ mensagem: 'Prazo máximo entre doses menor ou igual a zero.' });
+  }
+
+  if (vacina.tempoTotalProtecao <= 0) {
+    resultados.push({ mensagem: 'Tempo total de proteção menor ou igual a zero.' });
+  }
+
   return resultados;
 }
 
 router.post('',(req,res,next)=>{
   const vacina = new Vacina({
-    nome: req.body.nome.trim(),
-    tipo: req.body.tipo.trim(),
+    doenca: req.body.doenca.trim(),
+    fabricante: req.body.fabricante.trim(),
     dose: req.body.dose,
     lote: req.body.lote.trim(),
     quantidade: req.body.quantidade,
+    prazoMaximoEntreDoses: req.body.prazoMaximoEntreDoses,
+    tempoTotalProtecao: req.body.tempoTotalProtecao
   });
 
   const resultados = validaVacina(vacina);

@@ -12,36 +12,6 @@ app.use(cors());
 
 const tipos = ["enfermeiros", "pacientes"];
 
-app.post("/token", (req, res) => {
-  const tipo = req.body.tipo;
-  const refreshToken = req.body.token;
-
-  if (!tipos.includes(tipo)) {
-    return res.status(400).send("Tipo inválido");
-  }
-  if (refreshToken == null) {
-    return res.sendStatus(401);
-  }
-
-  axios
-    .get(`http://localhost:4000/api/${tipo}/token/${refreshToken}`)
-    .then((response) => {
-      if (response.data.length < 0) {
-        return res.sendStatus(403);
-      }
-
-      jwt.verify(
-        refreshToken,
-        process.env.REFRESH_TOKEN_SECRET,
-        (err, user) => {
-          if (err) return res.sendStatus(403);
-          const accessToken = generateAccessToken(user);
-          res.status(200).json({ accessToken });
-        }
-      );
-    });
-});
-
 app.post("/login", (req, res) => {
   const tipo = req.body.tipo;
   const user = req.body.user;
@@ -53,27 +23,19 @@ app.post("/login", (req, res) => {
     .post(`http://localhost:4000/api/${tipo}/login`, user)
     .then((response) => {
       const user = response.data[0];
-      const accessToken = generateAccessToken(user);
-      const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-
-      axios
-        .patch(
-          `http://localhost:4000/api/${tipo}/token`,
-          { _id: user._id, refreshToken: refreshToken },
-          { headers: { Authorization: `Bearer ${accessToken}` } }
-        )
-        .then((response) => {
-          res.json({ accessToken, refreshToken });
-        })
-        .catch((err) => {
-          res.send(err);
-        });
+      const accessToken = generateAccessToken(user, tipo);
+      res.json({ accessToken });
     })
     .catch((err) => res.sendStatus(403));
 });
 
 app.post("/validation", (req, res, next) => {
-  jwt.verify(req.body.token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+  const tipo = req.body.tipo;
+  const token = req.body.token;
+
+  const secret = tipo === "enfermeiros" ? process.env.ENFERMEIRO_TOKEN_SECRET : process.env.PACIENTE_TOKEN_SECRET
+
+  jwt.verify(token, secret, (err, user) => {
     if (err) {
       return res.sendStatus(403);
     }
@@ -85,9 +47,13 @@ app.delete("/logout", (req, res) => {
   // remove refresh token
 });
 
-function generateAccessToken(user) {
-  const { senha, coren, __v, cpf, refreshToken, ...usert } = user;
-  return jwt.sign(usert, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "50m" });
+function generateAccessToken(user, tipo) {
+  const { senha, __v, cpf, refreshToken, ...userFormatado } = user;
+  if (tipo === "enfermeiros") {
+    return jwt.sign(userFormatado, process.env.ENFERMEIRO_TOKEN_SECRET, { expiresIn: 57600 });
+  } else {
+    return jwt.sign(userFormatado, process.env.PACIENTE_TOKEN_SECRET);
+  }
 }
 
 app.listen(5000, () => console.log("Auth running..."));
