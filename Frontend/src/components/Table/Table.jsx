@@ -31,10 +31,13 @@ function Table({ tabela }) {
     dataNasc: "Data de Nascimento",
     coren: "COREN",
     admin: "Administrador",
-    tipo: "Tipo",
-    dose: "Dose",
+    doenca: "Doença",
+    fabricante: "Fabricante",
+    dose: "Doses",
     lote: "Lote",
-    quantidade: "Quantidade"
+    quantidade: "Quantidade",
+    prazoMaximoEntreDoses: "Prazo máximo entre doses",
+    tempoTotalProtecao: "Tempo total de proteção"
   }
   const { token } = useContext(StoreContext);
 

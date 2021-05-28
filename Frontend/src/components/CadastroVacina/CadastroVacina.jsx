@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import PropTypes from "prop-types";
 import { createMuiTheme, withStyles, ThemeProvider } from "@material-ui/core/styles";
@@ -10,25 +10,32 @@ import "./style.css";
 
 function CadastroVacina(props) {
   const { classes } = props;
+  const history = useHistory();
 
-  const [nome, setNome] = useState("");
-  const [tipo, setTipo] = useState("");
+  const [doenca, setDoenca] = useState("");
+  const [fabricante, setFabricante] = useState("");
   const [dose, setDose] = useState("");
   const [lote, setLote] = useState("");
   const [quantidade, setQuantidade] = useState("");
+  const [prazoMaximoEntreDoses, setPrazoMaximoEntreDoses] = useState("");
+  const [tempoTotalProtecao, setTempoTotalProtecao] = useState("");
 
   const [formularioValido, setFormularioValido] = useState(false);
   const [erros, setErros] = useState({
-    nome: false,
+    doenca: false,
     dose: false,
     lote: false,
-    quantidade: false
+    quantidade: false,
+    prazoMaximoEntreDoses: false,
+    tempoTotalProtecao: false
   });
   const [preenchido, setPreenchido] =  useState({
-    nome: false,
+    doenca: false,
     dose: false,
     lote: false,
-    quantidade: false
+    quantidade: false,
+    prazoMaximoEntreDoses: false,
+    tempoTotalProtecao: false
   });
 
 
@@ -42,13 +49,13 @@ function CadastroVacina(props) {
     setFormularioValido(true);
   }
 
-  const validaNome = (nome) => {
-    if (nome.length > 0) {
-      setPreenchido({...preenchido, nome:true})
-      validaFormulario({...preenchido, nome: true})
+  const validaDoenca = (doenca) => {
+    if (doenca.length > 0) {
+      setPreenchido({...preenchido, doenca:true})
+      validaFormulario({...preenchido, doenca: true})
     } else {
-      setPreenchido({...preenchido, nome:false})
-      validaFormulario({...preenchido, nome: false})
+      setPreenchido({...preenchido, doenca:false})
+      validaFormulario({...preenchido, doenca: false})
     }
   }
 
@@ -83,6 +90,26 @@ function CadastroVacina(props) {
     }
   }
 
+  const validaPrazoMaximoEntreDoses = (prazoMaximoEntreDoses) => {
+    if (prazoMaximoEntreDoses > 0) {
+      setPreenchido({...preenchido, prazoMaximoEntreDoses: true});
+      validaFormulario({...preenchido, prazoMaximoEntreDoses: true});
+    } else {
+      setPreenchido({...preenchido, prazoMaximoEntreDoses: false});
+      validaFormulario({...preenchido, prazoMaximoEntreDoses: false});
+    }
+  }
+
+  const validaTempoTotalProtecao = (tempoTotalProtecao) => {
+    if (tempoTotalProtecao > 0) {
+      setPreenchido({...preenchido, tempoTotalProtecao: true});
+      validaFormulario({...preenchido, tempoTotalProtecao: true});
+    } else {
+      setPreenchido({...preenchido, tempoTotalProtecao: false});
+      validaFormulario({...preenchido, tempoTotalProtecao: false});
+    }
+  }
+
   const theme = createMuiTheme({
     palette: {
       primary: {
@@ -98,33 +125,33 @@ function CadastroVacina(props) {
       <ThemeProvider theme={theme}>
         <form className="formulario-cadastro">
           <TextField
-            label="Nome"
-            id="nome"
-            helperText="Nome da Vacina"
+            label="Doença"
+            id="doenca"
+            helperText="Ex.: Covid19, Febre Amarela, HPV"
             variant="outlined"
             margin="normal"
-            error={erros.nome}
+            error={erros.doenca}
             InputProps={{ className: classes.input }}
             onChange={(event) => {
-              let nome = event.target.value.trim();
-              setNome(nome);
-              validaNome(nome);
+              let doenca = event.target.value.trim();
+              setDoenca(doenca);
+              validaDoenca(doenca);
             }}
             onBlur={() => {
-              setErros({...erros, nome: !preenchido.nome})
+              setErros({...erros, doenca: !preenchido.doenca})
             }}
           />
           <TextField
-            label="Tipo"
-            id="tipo"
+            label="Fabricante"
+            id="fabricante"
             type="text"
-            helperText="Doença - Tipo. Ex: Hepatite - B"
+            helperText="Ex.: CoronaVac, "
             variant="outlined"
             margin="normal"
             InputProps={{ className: classes.input }}
             onChange={(event) => {
-              let tipo = event.target.value.trim();
-              setTipo(tipo);
+              let fabricante = event.target.value.trim();
+              setFabricante(fabricante);
             }}
           />
           <TextField
@@ -183,13 +210,56 @@ function CadastroVacina(props) {
                 validaQuantidade(quantidade);
               }}
               onBlur={() => {
-                setErros({...erros, quantiade: !preenchido.quanitdade})
+                setErros({...erros, quantidade: !preenchido.quantidade})
+              }}
+            />
+          </div>
+          <div className="lote-info">
+            <TextField
+              label="Tempo max. entre doses"
+              id="lote"
+              variant="outlined"
+              margin="normal"
+              type="number"
+              helperText="Em dias"
+              error={erros.lote}
+              style={{ marginRight: 12 }}
+              InputProps={{ className: classes.input }}
+              fullWidth
+              onChange={(event) => {
+                let prazoMaxEntreDoses = event.target.value.trim();
+                setPrazoMaximoEntreDoses(prazoMaxEntreDoses);
+                validaPrazoMaximoEntreDoses(prazoMaxEntreDoses);
+              }}
+              onBlur={() => {
+                setErros({...erros, prazoMaximoEntreDoses: !preenchido.prazoMaximoEntreDoses})
+              }}
+            />
+            <TextField
+              label="Tempo total de proteção"
+              id="quantidade"
+              variant="outlined"
+              margin="normal"
+              type="number"
+              helperText="Em meses"
+              error={erros.quantidade}
+              style={{ marginLeft: 12 }}
+              InputProps={{ className: classes.input }}
+              fullWidth
+              onChange={(event) => {
+                let tempoTotalProtecao = event.target.value.trim();
+                setTempoTotalProtecao(tempoTotalProtecao);
+                validaTempoTotalProtecao(tempoTotalProtecao);
+              }}
+              onBlur={() => {
+                setErros({...erros, tempoTotalProtecao: !preenchido.tempoTotalProtecao})
               }}
             />
           </div>
           <Button disabled={!formularioValido} variant="contained" color="primary" size="large" onClick={() => {
-            enviaRegistro(nome, tipo, dose, lote, quantidade);
-          }}><Link className="reset-a" to="/vacinas">Cadastrar Vacina</Link></Button>
+            enviaRegistro(doenca, fabricante, dose, lote, quantidade, prazoMaximoEntreDoses, tempoTotalProtecao);
+            history.push("/vacinas");
+          }}><p className="reset-a">Cadastrar Vacina</p></Button>
         </form>
       </ThemeProvider>
     </div>

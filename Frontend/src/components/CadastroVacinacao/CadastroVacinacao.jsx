@@ -16,7 +16,7 @@ import StoreContext from '../Store/Context';
 import { tokenValidation } from "../../controllers/token";
 import { getVacinas } from "../../controllers/vacinas";
 import { getPacientes } from "../../controllers/pacientes";
-import { encryptQrCode } from "../../controllers/vacinacao";
+import { cadastraVacinacao } from "../../controllers/vacinacao";
 import "./style.css";
 
 
@@ -26,7 +26,6 @@ function CadastroVacinacao(props) {
 
   const [vacina, setVacina] = useState({});
   const [paciente, setPaciente] = useState({});
-  const [dose, setDose] = useState({});
   const [dataRetorno, setDataRetorno] = useState({});
 
   const [vacinaOptions, setVacinaOptions] = useState([]);
@@ -40,13 +39,11 @@ function CadastroVacinacao(props) {
   const [erros, setErros] = useState({
     vacina: false,
     paciente: false,
-    dose: false,
     dataRetorno: false,
   });
   const [preenchido, setPreenchido] = useState({
     vacina: false,
     paciente: false,
-    dose: false,
     dataRetorno: false,
   });
 
@@ -96,25 +93,6 @@ function CadastroVacinacao(props) {
   });
 
   const selecionaVacina = (event, vacina) => {
-    console.log(event, vacina)
-    if (vacina) {
-      switch (vacina.dose) {
-        case 0.5:
-          setDosesOptions([{ value: 0.5, label: "DOSE FRACIONADA" }]);
-          break;
-        case 1:
-          setDosesOptions([{ value: 1, label: "DOSE ÚNICA" }]);
-          break;
-        case 2:
-          setDosesOptions([
-            { value: 1, label: "Primeira dose" },
-            { value: 2, label: "Segunda Dose" },
-          ]);
-          break;
-        default:
-          console.log("a");
-      }
-    }
     if (vacinaOptions.includes(vacina)) {
       setVacina(vacina);
       setPreenchido({...preenchido, vacina: true});
@@ -137,18 +115,6 @@ function CadastroVacinacao(props) {
     }
   };
 
-  const selecionaDose = (event, dose) => {
-    console.log(event, dose)
-    if (dose) {
-      setDose(dose);
-      setPreenchido({...preenchido, dose: true});
-      validaFormulario({...preenchido, dose: true});
-    } else {
-      setPreenchido({...preenchido, dose: false});
-      validaFormulario({...preenchido, dose: false});
-    }
-  }
-
   const validaDataRetorno = (dataRetorno) => {
     if (dataRetorno) {
       setPreenchido({...preenchido, dataRetorno: true});
@@ -160,10 +126,11 @@ function CadastroVacinacao(props) {
   }
 
   const geraQrCode = () => {
-    const info = {vacina, paciente, dose, dataRetorno, vacinador: token};
-    encryptQrCode(info, token).then(encryptedInfo => {
-      console.log(encryptedInfo)
-      setQRCodeInfo(encryptedInfo);
+    console.log("Chamando")
+    cadastraVacinacao(vacina, paciente, dataRetorno, token).then(response => {
+      if ('id' in response) {
+        setQRCodeInfo(`${response.id} ${response.dose}`);
+      }
       setModalIsOpen(true);
     })
   }
@@ -192,7 +159,7 @@ function CadastroVacinacao(props) {
         <form className="formulario-cadastro">
           <AutoComplete
             options={vacinaOptions}
-            getOptionLabel={(option) => option.nome}
+            getOptionLabel={(option) => `${option.doenca} - ${option.fabricante} - ${option.lote}`}
             variant="contained"
             onChange={selecionaVacina}
             renderInput={(params) => {
@@ -224,23 +191,6 @@ function CadastroVacinacao(props) {
               );
             }}
           />
-          <AutoComplete
-            options={dosesOptions}
-            getOptionLabel={(option) => option.label}
-            variant="contained"
-            onChange={selecionaDose}
-            renderInput={(params) => {
-              return (
-                <TextField
-                  {...params}
-                  label="Dose"
-                  margin="normal"
-                  variant="outlined"
-                  InputProps={{...params.InputProps ,className: classes.input }}
-                />
-              );
-            }}
-          />
           <TextField
             label="Data de Retorno"
             id="tipo"
@@ -262,9 +212,9 @@ function CadastroVacinacao(props) {
             style={{ marginTop: 8 }}
             onClick={geraQrCode}
           >
-            <Link className="reset-a" to="/vacinas">
+            <p className="reset-a">
               Vacinar
-            </Link>
+            </p>
           </Button>
         </form>
       </ThemeProvider>
