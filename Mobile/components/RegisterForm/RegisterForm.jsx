@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   View,
@@ -7,18 +7,18 @@ import {
 } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 
-import { enviaRegistro } from "../../controllers/paciente";
+import Context from '../Context';
 
 const moment = require('moment');
 
 const ScreenHeight = Dimensions.get("window").height;
 
-export default function RegisterForm() {
+export default function RegisterForm({ dadosRecebidos }) {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(dadosRecebidos.email);
   const [dataNasc, setDataNasc] = useState("");
-  const [senha, setSenha] = useState("");
+  const [senha, setSenha] = useState(dadosRecebidos.senha);
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const [mostraSenha, setMostraSenha] = useState(false);
@@ -36,11 +36,13 @@ export default function RegisterForm() {
   const [preenchido, setPreenchido] =  useState({
     nome: false,
     cpf: false,
-    email: false,
+    email: dadosRecebidos.preenchido.email,
     dataNasc: false,
-    senha: false,
+    senha: dadosRecebidos.preenchido.senha,
     confirmarSenha: false
   });
+
+  const { signUp } = React.useContext(Context);
 
 
   const validaFormulario = (preenchido) =>{
@@ -126,7 +128,7 @@ export default function RegisterForm() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <TextInput
         label="Nome Completo"
         style={styles.input}
@@ -169,6 +171,7 @@ export default function RegisterForm() {
         style={styles.input}
         keyboardType="email-address"
         mode="outlined"
+        value={email}
         error={erros.email}
         onChangeText={(email) => {
           email = email.trim();
@@ -211,6 +214,7 @@ export default function RegisterForm() {
         style={styles.input}
         secureTextEntry={!mostraSenha}
         mode="outlined"
+        value={senha}
         error={erros.senha}
         onChangeText={(senha) => {
           senha = senha.trim();
@@ -249,13 +253,13 @@ export default function RegisterForm() {
         style={styles.button}
         disabled={!formularioValido}
         onPress={() => {
-          enviaRegistro(nome, cpf, dataNasc, email, senha);
+          signUp(nome, cpf, dataNasc, email, senha);
         }}
         labelStyle={styles.textButton}
       >
         Registrar-se
       </Button>
-    </>
+    </React.Fragment>
   );
 }
 

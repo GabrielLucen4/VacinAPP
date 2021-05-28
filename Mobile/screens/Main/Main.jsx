@@ -1,88 +1,130 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   FlatList,
 } from "react-native";
 
 import { Transitioning, Transition } from "react-native-reanimated";
+import AsyncStorage from "@react-native-community/async-storage"
 
+import ScreenSchema from "../../components/ScreenSchema/ScreenSchema";
+import Context from "../../components/Context";
 import VacinaItem from "../../components/VacinaItem";
 import BotaoQrCode from "../../components/BotaoQrCode";
+import { Button } from "react-native-paper";
 
-export default function Main() {
-  const data = [
-    {
-      _id: "456",
-      nome: "CoronaVac",
-      doses: 2,
-      vacina: [
-        {
-          tipo: "Covid - China",
-          dose: 1,
-          lote: "LX074C",
-          dataAplicacao: "23/04/2021",
-          enfermeiro: {
-            nome: "Rodrigo Lins",
-            coren: "000.123.456-SP",
-          }
-        },
-        {
-          tipo: "Covid - China",
-          dose: 2,
-          lote: "LX073B",
-          dataAplicacao: "23/05/2021",
-          enfermeiro: {
-            nome: "Gabriel Santos",
-            coren: "000.456.789-SP",
-          }
-        }
-      ],
-      dataRetorno: "10/08/21",
-    }
-  ];
+import jwtDecode from "jwt-decode";
+import { getVacinacoes } from "../../controllers/vacinacao";
+
+export default function Main({ navigation }) {
+
+  const [nome, setNome] = useState("");
+  const [data, setData] = useState([]);
+  const [scanned, setScanned] = useState("");
 
   const transitionRef = useRef();
-  const transition = <Transition.Change interpolation="easeInOut" />
+  const transition = <Transition.Change interpolation="easeInOut" />;
+
+  const { signOut } = React.useContext(Context);
 
   const onPress = () => {
     transitionRef.current.animateNextTransition();
-  }
-
-  const renderItem = ({ item }) => {
-    return <VacinaItem dados={item} styles={styles} onPress={onPress}/>
   };
 
+  const renderItem = ({ item }) => {
+    return <VacinaItem dados={item} styles={styles} onPress={onPress} />;
+  };
+
+  const trataNome = (nome) => {
+    const nomes = nome.split(" ");
+    nome = nomes[0] + " " + nomes[nomes.length - 1];
+    return nome;
+  }
+
+  useEffect(() => {
+    async function getInfo() {
+      const token = await AsyncStorage.getItem("token");
+      const getNome = async () => {
+        let nome = jwtDecode(token).nome;
+        nome = trataNome(nome);
+        setNome(nome);
+      }
+      const getVacinacoesUser = async () => {
+        const data = await getVacinacoes(token);
+        setData(data);
+        console.log(data);
+      }
+      getNome();
+      getVacinacoesUser();
+    }
+    getInfo();
+  }, [scanned]);
+
   return (
-    <>
+    <ScreenSchema>
       <View style={styles.containerHeader}>
-        <Text style={styles.vacinAppText}>VacinApp</Text>
-        <View style={styles.nomeContainer}>
-          <Text style={styles.nomeText}>Nathan Marrega</Text>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => {
+            signOut();
+          }}
+        >
+          <Button icon="logout" labelStyle={styles.logoutLabel}></Button>
+        </TouchableOpacity>
+        <View style={styles.subContainerHeader}>
+          <Text style={styles.vacinAppText}>VacinApp</Text>
+          <View style={styles.nomeContainer}>
+            <Text style={styles.nomeText}>{nome}</Text>
+          </View>
         </View>
+        <View style={{ flex: 1 }} />
       </View>
       <View style={styles.containerVacinas}>
-        <Transitioning.View ref={transitionRef} transition={transition} style={{ flex: 1 }}>
+        <Transitioning.View
+          ref={transitionRef}
+          transition={transition}
+          style={{ flex: 1 }}
+        >
           <FlatList
             keyExtractor={(item) => item._id}
             data={data}
             renderItem={renderItem}
           />
         </Transitioning.View>
-        <BotaoQrCode styles={styles} />
+        <BotaoQrCode
+          styles={styles}
+          onPress={() => navigation.push("QRCodeScanner", { scannedInfo: setScanned })}
+        />
       </View>
-    </>
+    </ScreenSchema>
   );
 }
 
 const styles = StyleSheet.create({
   containerHeader: {
-    marginTop: 10,
+    flexDirection: "row",
     flex: 0.2,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+    padding: 0,
+  },
+  logoutButton: {
+    flex: 1,
+    width: "100%",
+    alignItems: "flex-start"
+  },
+  logoutLabel: { 
+    color: "#FFF",
+    fontSize: 32
+  },
+  subContainerHeader: {
+    flex: 6,
     width: "90%",
     justifyContent: "space-around",
     alignItems: "center"
@@ -95,7 +137,7 @@ const styles = StyleSheet.create({
   nomeContainer: {
     width: "90%",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   nomeText: {
     fontSize: 24,
@@ -108,7 +150,8 @@ const styles = StyleSheet.create({
     width: "87%",
     backgroundColor: "#FFF",
     borderRadius: 20,
-    padding: 20
+    padding: 20,
+    marginBottom: 30
   },
   vacinaItemContainer: {
     borderWidth: 3,
@@ -118,12 +161,12 @@ const styles = StyleSheet.create({
     padding: 4,
     //justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12
+    marginBottom: 12,
   },
   vacinaItemSubContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: "center"
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
   },
   vacinaItemNome: {
     flex: 1,
@@ -135,16 +178,16 @@ const styles = StyleSheet.create({
     flex: 1,
     borderLeftWidth: 2,
     borderColor: "#49A7C2",
-    height: '90%',
-    justifyContent: "center"
+    height: "90%",
+    justifyContent: "center",
+    alignItems: "center"
   },
   dosesText: {
-    marginLeft: 20,
-    fontWeight: "500"
+    fontWeight: "500",
   },
   vacinaItemMaisDetalhes: {
     backgroundColor: "#49A7C2",
-    width: '90%',
+    width: "95%",
     alignItems: "center",
     justifyContent: "center",
     padding: 4,
@@ -154,39 +197,39 @@ const styles = StyleSheet.create({
   },
   vacinaItemMaisDetalhesText: {
     color: "#FFF",
-    fontWeight: "500"
+    fontWeight: "500",
   },
   vacinaItemContainerExpanded: {
     borderWidth: 3,
     borderColor: "#49A7C2",
     borderRadius: 20,
     padding: 4,
-    justifyContent: 'space-around',
+    justifyContent: "space-around",
     alignItems: "center",
-    marginBottom: 12
+    marginBottom: 12,
   },
   vacinaItemNomeExpanded: {
     fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center"
+    textAlign: "center",
   },
   vacinaItemDoseContainerExpanded: {
     flex: 1,
     width: "100%",
     paddingHorizontal: 30,
-    marginBottom: 10
+    marginBottom: 10,
   },
   vacinaItemDoseTextExpanded: {
-    fontWeight: "500"
+    fontWeight: "500",
   },
   qrCodeButton: {
-    top: '90%',
-    left: "88%",
+    top: "92%",
+    left: "85%",
     zIndex: 1,
     position: "absolute",
     backgroundColor: "#49A7C2",
     shadowColor: "#000",
-    shadowOffset: {width: 2, height: 2},
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.5,
     padding: 12,
     borderRadius: 100,
@@ -198,6 +241,6 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     resizeMode: "contain",
-    backgroundColor: "#49A7C2"
+    backgroundColor: "#49A7C2",
   },
 });

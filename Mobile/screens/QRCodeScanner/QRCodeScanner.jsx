@@ -2,11 +2,18 @@ import React, { useEffect, useState } from 'react';
 
 import { View, Text, Alert, StyleSheet } from 'react-native';
 
+import AsyncStorage from "@react-native-community/async-storage";
+
+import ScreenSchema from '../../components/ScreenSchema/ScreenSchema';
+
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Camera } from 'expo-camera';
 import { Button } from 'react-native-paper';
+import { cadastraVacinacao } from '../../controllers/vacinacao';
 
-export default function QRCodeVacinaScanner() {
+
+
+export default function QRCodeVacinaScanner({ navigation, route }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
 
@@ -23,18 +30,28 @@ export default function QRCodeVacinaScanner() {
     requestPermission();
   }, [hasCameraPermission])
 
-  const handleQrCodeRead = result => {
+  const handleQrCodeRead = async (result) => {
+    const token = await AsyncStorage.getItem("token");
+
     setScanned(true);
-    Alert.alert(JSON.stringify(result.data));
+    cadastraVacinacao(result.data, token).then(response => {
+      console.log(response);
+      route.params.scannedInfo(response);
+      navigation.pop();
+    }).catch(err => {
+      console.log(err);
+      Alert.alert(JSON.stringify(err));
+    })
   }
 
   return (
-    <>
+    <ScreenSchema>
       <View style={styles.container}>
         <Button
           icon="arrow-left"
           mode="text"
           labelStyle={{ color: "white", fontSize: 24 }}
+          onPress={() => navigation.pop()}
         >Sair</Button>
         {scanned}
       </View>
@@ -50,7 +67,7 @@ export default function QRCodeVacinaScanner() {
                 width: '100%',
               }}/>
       }
-    </>
+    </ScreenSchema>
   );
 }
 

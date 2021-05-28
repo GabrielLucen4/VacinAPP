@@ -1,24 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
+
 import {
-  KeyboardAvoidingView,
-  StyleSheet,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  View,
-  StatusBar,
-  SafeAreaView,
-  ActivityIndicator,
-} from "react-native";
+  NavigationContainer
+} from "@react-navigation/native";
 
-import Register from "./screens/Register";
-import Login from "./screens/Login";
-import Main from "./screens/Main";
-import QRCodeVacinaScanner from "./screens/QRCodeScanner";
+import AsyncStorage from "@react-native-community/async-storage"
 
-import style, { colors } from "./style";
+import Context from './components/Context';
+
+import LoginCadastroStack from "./screens/LoginCadastroStack";
+import MainStack from "./screens/MainStack";
+
+import { colors } from "./style";
 
 import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+import { enviaRegistro, login, tokenValidation } from "./controllers/paciente";
 
 const theme = {
   ...DefaultTheme,
@@ -30,47 +26,71 @@ const theme = {
 };
 
 export default function App() {
-  const [isLoading, setIsLoading] = React.useState(true);
   const [userToken, setUserToken] = React.useState(null);
+  const [validToken, setValidToken] = React.useState(false);
 
-  if (isLoading) {
-    return (
-      <View
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <ActivityIndicator size={large}/>
-      </View>
-    );
-  }
+  useEffect(() => {
+    const validToken = async () => {
+      const token = await AsyncStorage.getItem("token");
+      console.log(token);
+      const status = await tokenValidation(token);
+      console.log(status);
+      setValidToken(status === 200);
+    }
+    validToken();
+  }, [userToken]);
+
+  const authContext = React.useMemo(() => ({
+    signIn: async (email, senha) => {
+      const token = await login(email, senha);
+      try {
+        await AsyncStorage.setItem("token", token);
+        const tokenStorage = await AsyncStorage.getItem("token");
+        setUserToken(tokenStorage);
+      }
+      catch (err) {
+        console.log(err)
+      }
+    },
+    signOut: async () => {
+      await AsyncStorage.removeItem("token");
+      setUserToken(null);
+    },
+    signUp: async (nome, cpf, dataNasc, email, senha) => {
+      await enviaRegistro(nome, cpf, dataNasc, email, senha);
+      const token = await login(email, senha);
+      try {
+        await AsyncStorage.setItem("token", token);
+        const tokenStorage = await AsyncStorage.getItem("token");
+        setUserToken(tokenStorage);
+      }
+      catch (err) {
+        console.log(err)
+      }
+    }
+  }));
+
 
   return (
     /*
+    <Main/>
     <Register/>
     <Login/>
-    <Main/>
+    <QRCodeVacinaScanner />
+    <LoginCadastroStack/>
     */
-    <>
-      <SafeAreaView style={{ flex: 0, backgroundColor: colors.primary }} />
-      <SafeAreaView style={style.preencher}>
-        <PaperProvider theme={theme}>
-          <StatusBar />
-          <KeyboardAvoidingView
-            style={styles.background}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            <QRCodeVacinaScanner />
-          </KeyboardAvoidingView>
-        </PaperProvider>
-      </SafeAreaView>
-    </>
+   <Context.Provider value={authContext}>
+      <PaperProvider theme={theme}>
+        <NavigationContainer>
+          {
+            validToken
+            ? <MainStack />
+            : <LoginCadastroStack />
+          }
+        </NavigationContainer>
+      </PaperProvider>
+    </Context.Provider>
   );
 }
 
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#49A7C2",
-  },
-});
+

@@ -11,14 +11,15 @@ import {
   TouchableWithoutFeedback
 } from "react-native";
 
-import { TextInput, Button, Title } from "react-native-paper";
+import ScreenSchema from "../../components/ScreenSchema/ScreenSchema";
+import LoginForm from '../../components/LoginForm';
 
-import style, { colors } from "../../style";
 
-export default function Login() {
+export default function Login({ navigation }) {
     const [offset] = useState(new Animated.ValueXY({x:0, y:90}));
     const [opacity] = useState(new Animated.Value(0));
-    const [logo] = useState(new Animated.ValueXY({x:200, y:0}))
+    const [logo] = useState(new Animated.ValueXY({x:200, y:0}));
+
 
     useEffect(() => {
       keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
@@ -42,7 +43,7 @@ export default function Login() {
     const keyboardDidShow = () => {
       Animated.timing(logo.x, {
         toValue: 150,
-        duration: 50,
+        duration: 100,
         useNativeDriver: false
       }).start()
     }
@@ -56,8 +57,7 @@ export default function Login() {
     }
 
     return (
-        <>
-          <StatusBar/>
+        <ScreenSchema>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={styles.containerLogo}>
               <Animated.Image style={{
@@ -78,42 +78,11 @@ export default function Login() {
             ]}>
               <Text style={styles.title}>VacinApp</Text>
               <View style={styles.subContainer}>
-                <TextInput
-                  style={styles.input}
-                  label="E-mail"
-                  autoCorrect={false}
-                  mode="outlined"
-                  onChangeText={() => {}}
-                />
-
-                <TextInput
-                  style={styles.input}
-                  label="Senha"
-                  autoCorrect={false}
-                  mode="outlined"
-                  onChangeText={() => {}}
-                />
-
-                <View style={styles.containerButtons}>
-                  <Button
-                    mode="contained"
-                    style={styles.buttonLogin}
-                    labelStyle={styles.loginText}>
-                    Acessar
-                  </Button>
-
-                  <Button
-                    color={'#2d819f'}
-                    mode="contained"
-                    style={styles.buttonSignup}
-                    labelStyle={styles.signupText}>
-                    Cadastrar
-                  </Button>
-                </View>
+                <LoginForm styles={styles} navigation={navigation} />
               </View>
             </Animated.View>
           </TouchableWithoutFeedback>
-        </>
+        </ScreenSchema>
     );
 }
 
@@ -136,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     width: "90%",
-    paddingBottom: 50,
+    paddingBottom: 70,
   },
   subContainer: {
     width: "90%",

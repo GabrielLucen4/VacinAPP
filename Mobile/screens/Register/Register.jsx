@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { View, Keyboard, TouchableWithoutFeedback, StyleSheet, Image, Animated, Text, StatusBar } from "react-native";
+import { View, Keyboard, TouchableWithoutFeedback, StyleSheet, Image, Animated, Text, StatusBar, TouchableOpacity } from "react-native";
+import { Button } from 'react-native-paper';
 
+import ScreenSchema from "../../components/ScreenSchema/ScreenSchema";
 import RegisterForm from "../../components/RegisterForm/RegisterForm";
 
-import style, { colors } from "../../style";
-import Display from 'react-native-display';
-
-export default function Register() {
+export default function Register({ navigation, route }) {
 
   const [margin] = useState(new Animated.Value(35));
   const [offset] = useState(new Animated.ValueXY({x:0, y:90}));
@@ -69,7 +68,7 @@ export default function Register() {
   }
 
   return (
-    <>
+    <ScreenSchema>
       <StatusBar/>
       <Animated.View style={[styles.containerLogo, {transform: [{translateY: offsetLogo.y}]}]}>
           <Image
@@ -89,11 +88,14 @@ export default function Register() {
         ]}>
           <Animated.Text style={[styles.title, { marginTop: margin }]}>VacinApp</Animated.Text>
           <View style={styles.subContainer}>
-            <RegisterForm />
+            <RegisterForm dadosRecebidos={route.params} />
           </View>
+          <TouchableOpacity style={{marginTop: 20}}>
+            <Button icon="arrow-left" labelStyle={{color: "#FFF"}} onPress={() => navigation.pop()}>Voltar para a tela de login</Button>
+          </TouchableOpacity>
         </Animated.View>
       </TouchableWithoutFeedback>
-    </>
+    </ScreenSchema>
   );
 }
 
@@ -118,6 +120,13 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 2,
+    alignItems: "center",
+    justifyContent: "flex-start",
+    width: "90%",
+    paddingBottom: 100,
+  },
+  containerBack: {
+    flex: 3,
     alignItems: "center",
     justifyContent: "flex-start",
     width: "90%",

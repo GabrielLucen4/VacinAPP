@@ -6,7 +6,7 @@ export default function VacinaItem({ dados, styles, onPress }) {
   const [expanded, setExpanded] = useState(false);
   const [doses, setDoses] = useState([]);
 
-  const dadosVacina = dados.vacina;
+  const dadosVacina = dados.vacinas;
 
   useEffect(() => {
     const dosesTmp = [];
@@ -32,7 +32,7 @@ export default function VacinaItem({ dados, styles, onPress }) {
       {!expanded && (
         <TouchableOpacity key={dados._id} style={styles.vacinaItemContainer} onPress={onItemPress}>
             <View style={styles.vacinaItemSubContainer}>
-              <Text style={styles.vacinaItemNome}>{dados.nome}</Text>
+              <Text style={styles.vacinaItemNome}>{dados.doenca}</Text>
               <View style={styles.dosesContainer}>
                 {doses}
               </View>
@@ -44,15 +44,15 @@ export default function VacinaItem({ dados, styles, onPress }) {
       )}
       {expanded && (
         <TouchableOpacity key={dados._id} style={styles.vacinaItemContainer} onPress={onItemPress}>
-          <Text style={styles.vacinaItemNomeExpanded}>{dados.nome}</Text>
+          <Text style={styles.vacinaItemNomeExpanded}>{dados.doenca}</Text>
           {dadosVacina.map((vacina, index) => {
               return (
               <View key={index} style={styles.vacinaItemDoseContainerExpanded}>
                 <Text style={styles.vacinaItemDoseTextExpanded}>{index+1}º Dose:</Text>
                 <Text>Data: {vacina.dataAplicacao}</Text>
                 <Text>Lote: {vacina.lote}</Text>
-                <Text>Vacinador: {vacina.enfermeiro.nome}</Text>
-                <Text>COREN: {vacina.enfermeiro.coren}</Text>
+                <Text>Vacinador: {vacina.enfermeiroNome}</Text>
+                <Text>COREN: {vacina.enfermeiroCoren}</Text>
               </View>
               )
             })}
