@@ -16,7 +16,7 @@ import StoreContext from '../Store/Context';
 import { tokenValidation } from "../../controllers/token";
 import { getVacinas } from "../../controllers/vacinas";
 import { getPacientes } from "../../controllers/pacientes";
-import { cadastraVacinacao } from "../../controllers/vacinacao";
+import { cadastraVacinacao, estaConcluida } from "../../controllers/vacinacao";
 import "./style.css";
 
 
@@ -34,6 +34,7 @@ function CadastroVacinacao(props) {
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [qrCodeInfo, setQRCodeInfo] = useState("");
+  const [message, setMessage] = useState("");
 
   const [formularioValido, setFormularioValido] = useState(false);
   const [erros, setErros] = useState({
@@ -125,11 +126,32 @@ function CadastroVacinacao(props) {
     }
   }
 
+  const verificaPendencias = async (id) => {
+    let timeout = false;
+    let concluido = false;
+
+    setTimeout(() => {
+      timeout = true;
+    }, 300000);
+
+
+    while (!(timeout || concluido)) {
+      concluido = await estaConcluida(id, token);
+    }
+
+    setModalIsOpen(false);
+
+  }
+
   const geraQrCode = () => {
     console.log("Chamando")
     cadastraVacinacao(vacina, paciente, dataRetorno, token).then(response => {
       if ('id' in response) {
+        setMessage(response.mensagem);
         setQRCodeInfo(`${response.id} ${response.dose}`);
+      } else {
+        setMessage(response.mensagem);
+        setQRCodeInfo("");
       }
       setModalIsOpen(true);
     })
@@ -139,20 +161,28 @@ function CadastroVacinacao(props) {
     <div className="container-cadastro">
       <Modal isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)} style={{
         overlay: {
+          zIndex: 999,
           backgroundColor: 'rgba(0, 0, 0, 0.45)'
         },
         content: {
-          width: 453,
-          height: 453,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-around",
+          width: 500,
+          height: 500,
+          alignItems:"center",
           margin: 'auto',
-
         }
       }}>
-        <QRCode
-          value={qrCodeInfo}
-          size={450}
-          level={"L"}
-          includeMargin={true}/>
+        <h2>{message}</h2>
+        {
+        qrCodeInfo && 
+          <QRCode
+            value={qrCodeInfo}
+            size={450}
+            level={"H"}
+            includeMargin={true}/>
+        }
       </Modal>
       <h2 className="titulo-cadastro">Vacinar</h2>
       <ThemeProvider theme={theme}>

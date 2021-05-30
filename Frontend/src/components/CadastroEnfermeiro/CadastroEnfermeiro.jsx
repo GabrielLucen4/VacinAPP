@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 
 import PropTypes from "prop-types";
@@ -8,8 +8,12 @@ import { TextField, Button, Checkbox, FormControlLabel } from "@material-ui/core
 import { enviaRegistro, getByField } from "../../controllers/enfermeiros";
 import "./style.css";
 
+import StoreContext from '../Store/Context';
+
 function CadastroEnfermeiro(props) {
   const { classes } = props;
+
+  const { token } = useContext(StoreContext);
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -57,11 +61,18 @@ function CadastroEnfermeiro(props) {
 
 
   const validaEmail = (email, message="") => {
+    // algumacoisa@algumacois.algumacoisa
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (re.test(email.toLowerCase())) {
-      getByField('email', email).then((emails) => {
+      getByField('email', email, token).then((emails) => {
         console.log(emails)
-        if (!emails.erros && emails.registros.length === 0 ){
+        let tamanho;
+        try {
+          tamanho = emails.registros.length;
+        } catch (e) {
+          tamanho = 0
+        }
+        if (!emails.erros && tamanho === 0 ){
           setPreenchido({...preenchido, email: {value: true, message: ""}});
           validaFormulario({...preenchido, email: {value: true, message: ""}});
         } else {
@@ -76,10 +87,17 @@ function CadastroEnfermeiro(props) {
   }
 
   const validaCoren = (coren, message="") => {
+    // 3numeros.3numeros.3sumeros-2letras
     const re = /^([0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[a-zA-Z]{2})$/;
     if (re.test(coren.toUpperCase()) && coren.split('-').length === 2) {
-      getByField('coren', coren).then((corens) => {
-        if (!corens.erros && corens.registros.length === 0 ){
+      getByField('coren', coren, token).then((corens) => {
+        let tamanho;
+        try {
+          tamanho = corens.registros.length;
+        } catch (e) {
+          tamanho = 0;
+        }
+        if (!corens.erros && tamanho === 0 ){
           setPreenchido({...preenchido, coren: {value: true, message: ""}});
           validaFormulario({...preenchido, coren: {value: true, message: ""}});
         } else {

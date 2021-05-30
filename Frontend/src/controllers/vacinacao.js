@@ -24,5 +24,11 @@ export function cadastraVacinacao(vacina, paciente, dataRetorno, token) {
 
   return axios.post('http://localhost:4000/api/vacinacao', payload, {headers: { "Authorization": `Bearer ${token}` }})
   .then(response => response.data)
+  .catch(err => err.response.data);
+}
+
+export async function estaConcluida(id, token) {
+  return axios.get(`http://localhost:4000/api/vacinacao/concluida/${id}`, {headers: { "Authorization": `Bearer ${token}` }})
+  .then(response => response.data)
   .catch(err => err);
 }

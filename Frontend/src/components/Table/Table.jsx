@@ -39,6 +39,13 @@ function Table({ tabela }) {
     prazoMaximoEntreDoses: "Prazo máximo entre doses",
     tempoTotalProtecao: "Tempo total de proteção"
   }
+
+  const nonLabels = [
+    "_id",
+    "__v",
+    "refreshToken"
+  ]
+
   const { token } = useContext(StoreContext);
 
   const optionsColumns = {
@@ -114,8 +121,12 @@ function Table({ tabela }) {
     const col = [];
     if (dadosTabela.length > 0) {
       const cabecalho = Object.keys(dadosTabela[0]);
-      cabecalho.shift();
-      cabecalho.pop();
+      for (let index = 0; index < cabecalho.length; index++) {
+        let item = cabecalho[index];
+        if (nonLabels.includes(item)) {
+          cabecalho.splice(index, 1);
+        }
+      }
       for (let item of cabecalho) {
         col.push({name: item, label: labels[item], options: optionsColumns[item]})
       }

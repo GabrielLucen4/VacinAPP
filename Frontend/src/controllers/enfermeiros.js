@@ -19,9 +19,9 @@ export function enviaRegistro(nome, email, coren, senha, admin) {
   .catch(err => console.log(err));
 }
 
-export function getByField(field, value) {
+export function getByField(field, value, token) {
   let response = {}
-  return axios.get(`http://localhost:4000/api/enfermeiros/${field}/${value}`).then((res) => {
+  return axios.get(`http://localhost:4000/api/enfermeiros/${field}/${value}`, {headers: { "Authorization": `Bearer ${token}` }}).then((res) => {
     console.log(res)
     response = { registros: Array.from(res.data) }
     console.log(response)
