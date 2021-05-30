@@ -8,7 +8,7 @@ const router = express.Router();
 function validaEnfermeiro(enfermeiro) {
   const resultado = [];
 
-  if (paciente.nome.split(' ').length < 2) {
+  if (enfermeiro.nome.split(' ').length < 2) {
     resultado.push({mensagem: 'Nome do enfermeiro deve conter pelo menos um sobrenome'});
   }
 
@@ -25,6 +25,8 @@ function validaEnfermeiro(enfermeiro) {
   if (enfermeiro.senha.length < 5) {
     resultado.push({mensage: 'Senha do enfermeiro é muito curta'});
   }
+
+  return resultado;
 }
 
 router.post('', (req, res, next) => {
@@ -36,11 +38,14 @@ router.post('', (req, res, next) => {
     admin: req.body.admin
   });
 
+  console.log(enfermeiro)
+
   const resultado = validaEnfermeiro(enfermeiro);
   if(resultado.length > 0) {
     res.status(400).json(resultado);
   } else {
     enfermeiro.save().then(enfermeiroInserido =>{
+      console.log(enfermeiroInserido)
       res.status(201).json({
         mensagem: 'Enfermeiro(a) Inserido(a)',
         id: enfermeiroInserido._id

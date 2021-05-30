@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 
 
-function validaPaciente(paciente) {
+async function validaPaciente(paciente) {
   const resultado = [];
 
 
@@ -15,11 +15,23 @@ function validaPaciente(paciente) {
 
   if (paciente.cpf.length !== 14) {
     resultado.push({mensagem: 'CPF do paciente é inválido.'});
+  } else {
+    const cpfExiste = await Paciente.findOne({ cpf: paciente.cpf })
+
+    if(Object.keys(cpfExiste).length !== 0){
+      resultado.push({mensagem: "CPF já cadastrado."})
+    }
   }
 
   const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   if (!emailRegex.test(paciente.email.toLowerCase())) {
     resultado.push({mensagem: 'E-mail do paciente é inválido.'});
+  } else {
+    const emailExiste = await Paciente.findOne({ email: paciente.email })
+
+    if(Object.keys(emailExiste).length !== 0) {
+      resultado.push({mensagem: "E-mail já cadastrado."})
+    }
   }
 
   const date_regex = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
@@ -44,7 +56,7 @@ router.post('/login', (req, res, next) => {
   })
 })
 
-router.post('', (req, res, next) => {
+router.post('', async (req, res, next) => {
   console.log(req.body)
   const paciente = new Paciente({
     nome: req.body.nome.trim(),
@@ -54,7 +66,7 @@ router.post('', (req, res, next) => {
     senha: req.body.senha.trim()
   });
 
-  const resultado = validaPaciente(paciente);
+  const resultado = await validaPaciente(paciente);
   if(resultado.length > 0){
     res.status(400).json(resultado);
   } else {

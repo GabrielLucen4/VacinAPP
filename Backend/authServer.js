@@ -16,6 +16,8 @@ app.post("/login", (req, res) => {
   const tipo = req.body.tipo;
   const user = req.body.user;
 
+  console.log(req.body);
+
   if (!tipos.includes(tipo)) {
     return res.status(400).send("Tipo inválido");
   }
@@ -41,10 +43,6 @@ app.post("/validation", (req, res, next) => {
     }
     res.sendStatus(200);
   });
-});
-
-app.delete("/logout", (req, res) => {
-  // remove refresh token
 });
 
 function generateAccessToken(user, tipo) {
