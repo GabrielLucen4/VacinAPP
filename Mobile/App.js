@@ -26,7 +26,7 @@ const theme = {
 };
 
 export default function App() {
-  const [userToken, setUserToken] = React.useState(null);
+  const [userToken, setUserToken] = React.useState("");
   const [validToken, setValidToken] = React.useState(false);
 
   useEffect(() => {
@@ -50,6 +50,7 @@ export default function App() {
       }
       catch (err) {
         console.log(err)
+        return err;
       }
     },
     signOut: async () => {
@@ -57,28 +58,26 @@ export default function App() {
       setUserToken(null);
     },
     signUp: async (nome, cpf, dataNasc, email, senha) => {
-      await enviaRegistro(nome, cpf, dataNasc, email, senha);
-      const token = await login(email, senha);
-      try {
-        await AsyncStorage.setItem("token", token);
-        const tokenStorage = await AsyncStorage.getItem("token");
-        setUserToken(tokenStorage);
-      }
-      catch (err) {
-        console.log(err)
+      const erro = await enviaRegistro(nome, cpf, dataNasc, email, senha);
+      console.log('2', erro);
+      if (!erro) {
+        const token = await login(email, senha);
+        try {
+          await AsyncStorage.setItem("token", token);
+          const tokenStorage = await AsyncStorage.getItem("token");
+          setUserToken(tokenStorage);
+        }
+        catch (err) {
+          console.log(err);
+        }
+      } else {
+        return erro;
       }
     }
-  }));
+  }), []);
 
 
   return (
-    /*
-    <Main/>
-    <Register/>
-    <Login/>
-    <QRCodeVacinaScanner />
-    <LoginCadastroStack/>
-    */
    <Context.Provider value={authContext}>
       <PaperProvider theme={theme}>
         <NavigationContainer>

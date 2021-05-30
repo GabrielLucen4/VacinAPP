@@ -6,10 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  Alert,
 } from "react-native";
 
 import { Transitioning, Transition } from "react-native-reanimated";
-import AsyncStorage from "@react-native-community/async-storage"
+import AsyncStorage from "@react-native-community/async-storage";
 
 import ScreenSchema from "../../components/ScreenSchema/ScreenSchema";
 import Context from "../../components/Context";
@@ -21,10 +22,8 @@ import jwtDecode from "jwt-decode";
 import { getVacinacoes } from "../../controllers/vacinacao";
 
 export default function Main({ navigation }) {
-
   const [nome, setNome] = useState("");
   const [data, setData] = useState([]);
-  const [scanned, setScanned] = useState("");
 
   const transitionRef = useRef();
   const transition = <Transition.Change interpolation="easeInOut" />;
@@ -43,7 +42,7 @@ export default function Main({ navigation }) {
     const nomes = nome.split(" ");
     nome = nomes[0] + " " + nomes[nomes.length - 1];
     return nome;
-  }
+  };
 
   useEffect(() => {
     async function getInfo() {
@@ -52,17 +51,21 @@ export default function Main({ navigation }) {
         let nome = jwtDecode(token).nome;
         nome = trataNome(nome);
         setNome(nome);
-      }
+      };
       const getVacinacoesUser = async () => {
         const data = await getVacinacoes(token);
         setData(data);
-        console.log(data);
-      }
+      };
       getNome();
       getVacinacoesUser();
     }
-    getInfo();
-  }, [scanned]);
+
+    const unsubscribe = navigation.addListener("focus", async () => {
+      await getInfo();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <ScreenSchema>
@@ -84,20 +87,26 @@ export default function Main({ navigation }) {
         <View style={{ flex: 1 }} />
       </View>
       <View style={styles.containerVacinas}>
-        <Transitioning.View
-          ref={transitionRef}
-          transition={transition}
-          style={{ flex: 1 }}
-        >
-          <FlatList
-            keyExtractor={(item) => item._id}
-            data={data}
-            renderItem={renderItem}
-          />
-        </Transitioning.View>
+        {data.length > 0 ? (
+          <Transitioning.View
+            ref={transitionRef}
+            transition={transition}
+            style={{ flex: 1 }}
+          >
+            <FlatList
+              keyExtractor={(item) => item._id}
+              data={data}
+              renderItem={renderItem}
+            />
+          </Transitioning.View>
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Nenhuma vacina cadastrada.</Text>
+          </View>
+        )}
         <BotaoQrCode
           styles={styles}
-          onPress={() => navigation.push("QRCodeScanner", { scannedInfo: setScanned })}
+          onPress={() => navigation.navigate("QRCodeScanner")}
         />
       </View>
     </ScreenSchema>
@@ -117,17 +126,17 @@ const styles = StyleSheet.create({
   logoutButton: {
     flex: 1,
     width: "100%",
-    alignItems: "flex-start"
+    alignItems: "flex-start",
   },
-  logoutLabel: { 
+  logoutLabel: {
     color: "#FFF",
-    fontSize: 32
+    fontSize: 32,
   },
   subContainerHeader: {
     flex: 6,
     width: "90%",
     justifyContent: "space-around",
-    alignItems: "center"
+    alignItems: "center",
   },
   vacinAppText: {
     fontSize: 50,
@@ -151,7 +160,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     borderRadius: 20,
     padding: 20,
-    marginBottom: 30
+    marginBottom: 30,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#a0a0a0",
+    fontSize: 16,
   },
   vacinaItemContainer: {
     borderWidth: 3,
@@ -180,7 +198,7 @@ const styles = StyleSheet.create({
     borderColor: "#49A7C2",
     height: "90%",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   dosesText: {
     fontWeight: "500",

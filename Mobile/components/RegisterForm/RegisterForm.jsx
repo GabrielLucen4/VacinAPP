@@ -11,9 +11,8 @@ import Context from '../Context';
 
 const moment = require('moment');
 
-const ScreenHeight = Dimensions.get("window").height;
 
-export default function RegisterForm({ dadosRecebidos }) {
+export default function RegisterForm({ dadosRecebidos, setErro }) {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState(dadosRecebidos.email);
@@ -252,8 +251,15 @@ export default function RegisterForm({ dadosRecebidos }) {
         mode="contained"
         style={styles.button}
         disabled={!formularioValido}
-        onPress={() => {
-          signUp(nome, cpf, dataNasc, email, senha);
+        onPress={async () => {
+          const erros = await signUp(nome, cpf, dataNasc, email, senha);
+          if (erros) {
+            let erroString = "";
+            for (let erro of erros) {
+              erroString += erro.mensagem + "\n";
+            }
+            setErro(erroString);
+          }
         }}
         labelStyle={styles.textButton}
       >

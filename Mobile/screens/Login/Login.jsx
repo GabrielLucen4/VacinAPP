@@ -19,6 +19,7 @@ export default function Login({ navigation }) {
     const [offset] = useState(new Animated.ValueXY({x:0, y:90}));
     const [opacity] = useState(new Animated.Value(0));
     const [logo] = useState(new Animated.ValueXY({x:200, y:0}));
+    const [erro, setErro] = useState(undefined);
 
 
     useEffect(() => {
@@ -78,7 +79,10 @@ export default function Login({ navigation }) {
             ]}>
               <Text style={styles.title}>VacinApp</Text>
               <View style={styles.subContainer}>
-                <LoginForm styles={styles} navigation={navigation} />
+                { erro && 
+                  <Text style={styles.erro}>{erro}</Text>
+                }
+                <LoginForm styles={styles} navigation={navigation} setErro={setErro}/>
               </View>
             </Animated.View>
           </TouchableWithoutFeedback>
@@ -105,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     width: "90%",
-    paddingBottom: 70,
+    paddingBottom: 90,
   },
   subContainer: {
     width: "90%",
@@ -113,6 +117,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     padding: 12,
     borderRadius: 20
+  },
+  erro: {
+    color: "red",
   },
   input: {
     width: "90%",

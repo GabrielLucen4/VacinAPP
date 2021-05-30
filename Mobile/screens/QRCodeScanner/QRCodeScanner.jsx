@@ -12,8 +12,7 @@ import { Button } from 'react-native-paper';
 import { cadastraVacinacao } from '../../controllers/vacinacao';
 
 
-
-export default function QRCodeVacinaScanner({ navigation, route }) {
+export default function QRCodeVacinaScanner({ navigation }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
 
@@ -34,13 +33,17 @@ export default function QRCodeVacinaScanner({ navigation, route }) {
     const token = await AsyncStorage.getItem("token");
 
     setScanned(true);
-    cadastraVacinacao(result.data, token).then(response => {
-      console.log(response);
-      route.params.scannedInfo(response);
-      navigation.pop();
+    cadastraVacinacao(result.data, token).then(status => {
+      if (status === 400) {
+        Alert.alert("Erro ao confirmar vacinação.");
+        setTimeout(() => {
+          setScanned(false);
+        }, 2000);
+      } else {
+        navigation.pop();
+      }
     }).catch(err => {
-      console.log(err);
-      Alert.alert(JSON.stringify(err));
+      Alert.alert(err);
     })
   }
 

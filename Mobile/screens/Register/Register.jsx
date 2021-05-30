@@ -12,7 +12,7 @@ export default function Register({ navigation, route }) {
   const [offset] = useState(new Animated.ValueXY({x:0, y:90}));
   const [offsetLogo] = useState(new Animated.ValueXY({x:0, y:0}));
   const [opacity] = useState(new Animated.Value(0));
-  const [display, setDisplay] = useState(true);
+  const [erro, setErro] = useState(undefined);
 
   useEffect(() => {
     keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
@@ -34,7 +34,6 @@ export default function Register({ navigation, route }) {
   }, [])
 
   const keyboardDidShow = () => {
-    setDisplay(false);
     Animated.parallel([
       Animated.timing(margin, {
         toValue: -120,
@@ -51,7 +50,6 @@ export default function Register({ navigation, route }) {
   }
 
   const keyboardDidHide = () => {
-    setDisplay(true);
     Animated.parallel([
       Animated.timing(margin, {
         toValue: 35,
@@ -88,7 +86,10 @@ export default function Register({ navigation, route }) {
         ]}>
           <Animated.Text style={[styles.title, { marginTop: margin }]}>VacinApp</Animated.Text>
           <View style={styles.subContainer}>
-            <RegisterForm dadosRecebidos={route.params} />
+            {erro && 
+              <Text style={{textAlign: "center", color: "red"}}>{erro}</Text>
+            }
+            <RegisterForm dadosRecebidos={route.params} setErro={setErro} />
           </View>
           <TouchableOpacity style={{marginTop: 20}}>
             <Button icon="arrow-left" labelStyle={{color: "#FFF"}} onPress={() => navigation.pop()}>Voltar para a tela de login</Button>

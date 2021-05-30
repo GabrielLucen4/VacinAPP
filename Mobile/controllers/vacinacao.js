@@ -11,8 +11,8 @@ export function cadastraVacinacao(dataQrCode, token) {
   }
 
   return axios.put('http://10.0.1.0:4000/api/vacinacao', payload, {headers: { "Authorization": `Bearer ${token}` }})
-  .then(response => response.data)
-  .catch(err => err);
+  .then(response => 200)
+  .catch(err => 400);
 }
 
 export async function getVacinacoes(token) {

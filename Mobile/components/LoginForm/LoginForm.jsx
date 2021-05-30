@@ -5,7 +5,7 @@ import { TextInput, Button } from "react-native-paper";
 
 import Context from '../../components/Context';
 
-export default function LoginForm({ styles, navigation }) {
+export default function LoginForm({ styles, navigation, setErro }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostraSenha, setMostraSenha] = useState(false);
@@ -79,7 +79,12 @@ export default function LoginForm({ styles, navigation }) {
           mode="contained"
           style={styles.buttonLogin}
           labelStyle={styles.loginText}
-          onPress={() => signIn(email, senha)}
+          onPress={async () => {
+            const erro = await signIn(email, senha);
+            if (erro) {
+              setErro("E-mail e/ou senha inválidos.");
+            }
+          }}
         >
           Acessar
         </Button>
