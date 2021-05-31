@@ -76,7 +76,7 @@ Agora que vimos como funciona a validação dos campos. Vamos às regras de cada
 ```
 3. COREN: é válidado pela expressão regular abaixo, na qual identifica o seguinte padrão para o coren: {3 números}.{3 números}.{3 números}-{2 letras}
 4. Senha: deve conter pelo menos 5 caractéres.
-5. Conrirma Senha: deve conter o mesmo valor do campo senha.
+5. Confirma Senha: deve conter o mesmo valor do campo senha.
 
 #### Formulário de cadastro da vacina:
 
