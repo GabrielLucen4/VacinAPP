@@ -1,6 +1,6 @@
 ![VacinApp Logo](./Mobile/assets/icon.png)
 # VacinApp
-#### Sua carteirinha de vacinação digital
+### Sua carteirinha de vacinação digital
 
 ```
 > Integrantes:
@@ -18,7 +18,7 @@ Nesse sistema, como paciente, o aplicativo funciona como uma carteirinha de vaci
 
 Como enfermeiro, ou funcionário do hospital, a pessoa terá acesso instância web do VacinApp. Onde, poderá registrar as vacinas quando aplicadas, visualizar a lista de pacientes, visualizar a lista de enfermeiros e as vacinas cadastradas no sistema. Caso seja administrador, poderá, além das funções comuns, poderá cadastrar e editar os enfermeiros e as vacinas no sistema.
 
-## Vídeo de apresentação do VacinApp:
+### Vídeo de apresentação do VacinApp:
 
 [![Video Thumb](./assets/intro/video_thumb.png)](https://www.youtube.com/watch?v=ADUrc15Jfnw)
 
@@ -40,29 +40,29 @@ Para administradores:
 
 **Nota**: Pacientes só são cadastrados por eles mesmos através do aplicativo.
 
-## Telas
+### Telas
 
 Protótipos feitos no framer: [Protótipos](https://framer.com/projects/93Vhf2T6mIObYAIVk01W-ivSiB)
 
-####1. Login:
+#### 1. Login:
 ![Tela Login](./assets/frontend/login.png)
 
-####2. Tabela de pacientes:
+#### 2. Tabela de pacientes:
 ![Tela Tabela de Pacientes](./assets/frontend/tabela_pacientes.png)
 
-####3. Tabela de pacientes:
+#### 3. Tabela de pacientes:
 ![Tela Tabela de Enfermeiros](./assets/frontend/tabela_enfermeiros.png)
 
-####4. Cadastrar Enfermeiro:
+#### 4. Cadastrar Enfermeiro:
 ![Tela Cadastrar Enfermeiro](./assets/frontend/cadastrar_enfermeiro.png)
 
-####5. Tabela de vacinas:
+#### 5. Tabela de vacinas:
 ![Tela Tabela de Vacinas](./assets/frontend/tabela_vacinas.png)
 
-####6. Cadastrar Vacina:
+#### 6. Cadastrar Vacina:
 ![Tela Cadastrar Vacina](./assets/frontend/cadastrar_vacina.png)
 
-####7. Registrar Vacinação:
+#### 7. Registrar Vacinação:
 ![Tela Registrar Vacinação](./assets/frontend/registrar_vacinacao.png)
 
 ---
@@ -76,7 +76,7 @@ São quatro telas simples, onde o paciente pode:
 - Consultar as vacinas já tomadas
 - Escanear o código QR para confirmar a vacinação
 
-## Telas:
+### Telas:
 
 Protótipos feitos no framer: [Protótipos](https://framer.com/projects/VacinApp-Mobile--vBOZh3BqU26id7i0eXUK-8pPR2)
 
