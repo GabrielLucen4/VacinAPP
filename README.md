@@ -2,13 +2,13 @@
 # VacinApp
 #### Sua carteirinha de vacinação digital
 
----
+```
 > Integrantes:
 > Rodrigo Souza Lins - RA: 819164766
 > Nathan Ramos Marrega - RA: 81913620
 > Gabriel Lucena dos Santos - RA: 819146592
 > Gabriel Santos Carvalho - RA: 819151151
----
+```
 
 ## Introdução
 
@@ -18,9 +18,9 @@ Nesse sistema, como paciente, o aplicativo funciona como uma carteirinha de vaci
 
 Como enfermeiro, ou funcionário do hospital, a pessoa terá acesso instância web do VacinApp. Onde, poderá registrar as vacinas quando aplicadas, visualizar a lista de pacientes, visualizar a lista de enfermeiros e as vacinas cadastradas no sistema. Caso seja administrador, poderá, além das funções comuns, poderá cadastrar e editar os enfermeiros e as vacinas no sistema.
 
-<figure class="video_container">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/ADUrc15Jfnw" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</figure>
+## Vídeo de apresentação do VacinApp:
+
+[![Video Thumb](./assets/intro/video_thumb.png)](https://www.youtube.com/watch?v=ADUrc15Jfnw)
 
 ---
 
@@ -40,7 +40,7 @@ Para administradores:
 
 **Nota**: Pacientes só são cadastrados por eles mesmos através do aplicativo.
 
-### Telas
+## Telas
 
 Protótipos feitos no framer: [Protótipos](https://framer.com/projects/93Vhf2T6mIObYAIVk01W-ivSiB)
 
@@ -76,25 +76,25 @@ São quatro telas simples, onde o paciente pode:
 - Consultar as vacinas já tomadas
 - Escanear o código QR para confirmar a vacinação
 
-###Telas:
+## Telas:
 
 Protótipos feitos no framer: [Protótipos](https://framer.com/projects/VacinApp-Mobile--vBOZh3BqU26id7i0eXUK-8pPR2)
 
-####1. Login:
+#### 1. Login:
 
 ![Tela Login](./assets/mobile/login.jpeg)
 
-####2. Cadastro:
+#### 2. Cadastro:
 
 ![Tela Cadastro](./assets/mobile/cadastro.jpeg)
 
-####3. Tela de consulta das vacinações (tela principal):
+#### 3. Tela de consulta das vacinações (tela principal):
 
 ![Tela Principal](./assets/mobile/tela_principal.jpeg)
 ![Tela Principal com card de vacinação expandido](./assets/mobile/tela_principal_expandido.jpeg)
 
 
-####4. Tela para escanear o código QR:
+#### 4. Tela para escanear o código QR:
 
 ![Tela Scan QR Code](./assets/mobile/qrcodescan.jpeg)
 
