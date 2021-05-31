@@ -4,6 +4,8 @@ const moment = require('moment');
 const express = require('express');
 const router = express.Router();
 
+const bcrypt = require('bcrypt');
+const saltRounds = 15;
 
 async function validaPaciente(paciente) {
   const resultado = [];
@@ -18,7 +20,7 @@ async function validaPaciente(paciente) {
   } else {
     const cpfExiste = await Paciente.findOne({ cpf: paciente.cpf })
 
-    if(Object.keys(cpfExiste).length !== 0){
+    if(cpfExiste){
       resultado.push({mensagem: "CPF já cadastrado."})
     }
   }
@@ -29,7 +31,7 @@ async function validaPaciente(paciente) {
   } else {
     const emailExiste = await Paciente.findOne({ email: paciente.email })
 
-    if(Object.keys(emailExiste).length !== 0) {
+    if(emailExiste) {
       resultado.push({mensagem: "E-mail já cadastrado."})
     }
   }
@@ -50,9 +52,18 @@ async function validaPaciente(paciente) {
 
 
 router.post('/login', (req, res, next) => {
-  Paciente.find({email: req.body.email, senha: req.body.senha}).then(documents => {
+  Paciente.findOne({email: req.body.email}).then(async (documents) => {
     console.log(documents)
-    res.status(200).json(documents);
+    try {
+      const resultado = await bcrypt.compare(req.body.senha, documents.senha);
+      if (resultado) {
+        res.status(200).json(documents);
+      } else {
+        res.sendStatus(403);
+      }
+    } catch (err) {
+      res.sendStatus(500);
+    }
   })
 })
 
@@ -70,12 +81,19 @@ router.post('', async (req, res, next) => {
   if(resultado.length > 0){
     res.status(400).json(resultado);
   } else {
-    paciente.save().then((pacienteInserido) => {
-      res.status(201).json({
-        mensagem: 'Paciente Inserido(a)',
-        id: pacienteInserido._id
+    try {
+      const senhaHash = await bcrypt.hash(paciente.senha, saltRounds)
+      paciente.senha = senhaHash;
+      paciente.save().then((pacienteInserido) => {
+        res.status(201).json({
+          mensagem: 'Paciente Inserido(a)',
+          id: pacienteInserido._id
+        });
       });
-    });
+    } catch (err) {
+      console.log(err);
+      res.sendStatus(500);
+     }
   }
 
 });

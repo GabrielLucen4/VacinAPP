@@ -3,8 +3,10 @@ import jwt_decode from "jwt-decode";
 const axios = require('axios');
 
 export function cadastraVacinacao(vacina, paciente, dataRetorno, token) {
+  // faz o decode do token do infermeiro para pegar o nome e o coren do mesmo
   const enfermeiroInfo = jwt_decode(token);
 
+  // pega as informações recebidas e constroi o corpo da chamdada
   const payload = {
     paciente: paciente._id,
     doenca: vacina.doenca,
@@ -22,6 +24,7 @@ export function cadastraVacinacao(vacina, paciente, dataRetorno, token) {
   }
   console.log(payload);
 
+  // chama a api para fazer o registro da vacinação no banco de dados
   return axios.post('http://localhost:4000/api/vacinacao', payload, {headers: { "Authorization": `Bearer ${token}` }})
   .then(response => response.data)
   .catch(err => err.response.data);

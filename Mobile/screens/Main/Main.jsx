@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Alert,
 } from "react-native";
 
 import { Transitioning, Transition } from "react-native-reanimated";
@@ -22,22 +21,29 @@ import jwtDecode from "jwt-decode";
 import { getVacinacoes } from "../../controllers/vacinacao";
 
 export default function Main({ navigation }) {
+  // Nome do paciente.
   const [nome, setNome] = useState("");
+  // Dados das vacinações tomadas.
   const [data, setData] = useState([]);
 
+  // Configs da animação de transição do card da vacina
   const transitionRef = useRef();
   const transition = <Transition.Change interpolation="easeInOut" />;
 
+  // Pega função de singout do Context
   const { signOut } = React.useContext(Context);
 
+  // Quando o card é pressionado, ele faz a animação de transição.
   const onPress = () => {
     transitionRef.current.animateNextTransition();
   };
 
+  // renderiza os cards das Vacinas
   const renderItem = ({ item }) => {
     return <VacinaItem dados={item} styles={styles} onPress={onPress} />;
   };
 
+  // função para tratar o nome, pega somente o primeiro e o último sobrenome
   const trataNome = (nome) => {
     const nomes = nome.split(" ");
     nome = nomes[0] + " " + nomes[nomes.length - 1];
@@ -45,10 +51,11 @@ export default function Main({ navigation }) {
   };
 
   useEffect(() => {
+    // Pega as informações do paciente no banco de dados, como nome e as vacinações
     async function getInfo() {
       const token = await AsyncStorage.getItem("token");
       const getNome = async () => {
-        let nome = jwtDecode(token).nome;
+        let nome = jwtDecode(token).nome; // faz o decode no token para pegar o nome do paciente.
         nome = trataNome(nome);
         setNome(nome);
       };
@@ -60,6 +67,8 @@ export default function Main({ navigation }) {
       getVacinacoesUser();
     }
 
+    // listener para quando a tela estiver em voltar ao foco,
+    // buscar as informações de novo no banco de dados
     const unsubscribe = navigation.addListener("focus", async () => {
       await getInfo();
     });
@@ -87,23 +96,28 @@ export default function Main({ navigation }) {
         <View style={{ flex: 1 }} />
       </View>
       <View style={styles.containerVacinas}>
-        {data.length > 0 ? (
-          <Transitioning.View
-            ref={transitionRef}
-            transition={transition}
-            style={{ flex: 1 }}
-          >
-            <FlatList
-              keyExtractor={(item) => item._id}
-              data={data}
-              renderItem={renderItem}
-            />
-          </Transitioning.View>
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Nenhuma vacina cadastrada.</Text>
-          </View>
-        )}
+        {
+          // caso o paciente tenha alguma vacinação registrada,
+          // será mostrada a FlatList com as vacinações,
+          // caso contrário, será mostrado o texto: Nenhuma vacina cadastrada.
+          data.length > 0 ? (
+            <Transitioning.View
+              ref={transitionRef}
+              transition={transition}
+              style={{ flex: 1 }}
+            >
+              <FlatList
+                keyExtractor={(item) => item._id}
+                data={data}
+                renderItem={renderItem}
+              />
+            </Transitioning.View>
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Nenhuma vacina cadastrada.</Text>
+            </View>
+          )
+        }
         <BotaoQrCode
           styles={styles}
           onPress={() => navigation.navigate("QRCodeScanner")}

@@ -2,6 +2,7 @@ import jwt_decode from "jwt-decode";
 const axios = require('axios');
 
 export function cadastraVacinacao(dataQrCode, token) {
+  // função que o leitor de QR code chama
   const data = dataQrCode.split(' ');
 
   const payload = {

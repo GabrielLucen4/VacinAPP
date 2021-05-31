@@ -50,6 +50,7 @@ function CadastroVacinacao(props) {
 
   const { token } = useContext(StoreContext);
   const [valido, setValido] = useState(false);
+
   useEffect(() => {
     const accessAllowed = () => {
       return tokenValidation(token).then(status => {
@@ -74,6 +75,7 @@ function CadastroVacinacao(props) {
   }, []);
 
   const validaFormulario = (preenchido) => {
+    // * verifica se todos os campos estão preenchidos corretamente para liberar o botão
     for (let [key, value] of Object.entries(preenchido)) {
       if (!value) {
         setFormularioValido(false);
@@ -94,6 +96,7 @@ function CadastroVacinacao(props) {
   });
 
   const selecionaVacina = (event, vacina) => {
+    // *  verifica se o que o usúario digitou/selecionou, existe na lista de vacinas
     if (vacinaOptions.includes(vacina)) {
       setVacina(vacina);
       setPreenchido({...preenchido, vacina: true});
@@ -106,6 +109,7 @@ function CadastroVacinacao(props) {
   };
 
   const selecionaPaciente = (event, paciente) => {
+    // * verifica se o que o usúario digitou/selecionou, existe na lista de pacientes
     if (pacienteOptions.includes(paciente)) {
       setPaciente(paciente);
       setPreenchido({...preenchido, paciente: true});
@@ -117,7 +121,10 @@ function CadastroVacinacao(props) {
   };
 
   const validaDataRetorno = (dataRetorno) => {
-    if (dataRetorno) {
+    // * verifica se a data está no formato correto
+    // ? regex => {dois numeros}/{dois numeros}/{quatro numeros}
+    const date_regex = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+    if (date_regex.test(dataRetorno)) { // TODO: Validar se é uma data depois do dia de hoje
       setPreenchido({...preenchido, dataRetorno: true});
       validaFormulario({...preenchido, dataRetorno: true});
     } else {
@@ -126,6 +133,7 @@ function CadastroVacinacao(props) {
     }
   }
 
+  // TODO: A ser implementada
   const verificaPendencias = async (id) => {
     let timeout = false;
     let concluido = false;
@@ -145,11 +153,15 @@ function CadastroVacinacao(props) {
 
   const geraQrCode = () => {
     console.log("Chamando")
+    // cadastra vacinação no banco
     cadastraVacinacao(vacina, paciente, dataRetorno, token).then(response => {
+      // verifica se a resposta tem o id da vacinação
       if ('id' in response) {
+        // * caso tenha, ele coloca a mensagem e as informações para gerar o QR Code
         setMessage(response.mensagem);
         setQRCodeInfo(`${response.id} ${response.dose}`);
       } else {
+        // ! caso não tenha, ele só coloca a mensagem e não gera o QR Code
         setMessage(response.mensagem);
         setQRCodeInfo("");
       }

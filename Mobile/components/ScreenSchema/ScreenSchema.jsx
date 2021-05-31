@@ -8,9 +8,10 @@ import {
 } from "react-native";
 import style, { colors } from "../../style";
 
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
 export default function ScreenSchema({ children }) {
+  // configurações de tela, para que se mantenha dentro dos limites do iOS e Android
+  // e também, o KeyboradAvoidingView, para quando o teclado aparecer, os TextFields
+  // subirem juntos e não ficarem obstruidos pelo teclado.
   return (
     <React.Fragment>
       <SafeAreaView style={{ flex: 0, backgroundColor: colors.primary }} />

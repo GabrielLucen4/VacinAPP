@@ -45,6 +45,9 @@ export default function RegisterForm({ dadosRecebidos, setErro }) {
 
 
   const validaFormulario = (preenchido) =>{
+    // verifica se todos os valores estão marcados como preenchido,
+    // caso sim, será atribuído como formulário válido e o botão de registrar-se ficará ativo,
+    // caso não, o botão se manterá inativo.
     for (let [key, value] of Object.entries(preenchido)) {
       if (!value) {
         setFormularioValido(false)
@@ -75,6 +78,7 @@ export default function RegisterForm({ dadosRecebidos, setErro }) {
   }
 
   const validaEmail = (email) => {
+    // regex => {alguma_coisa}@{alguma_coisa}.{alguma_coisa}
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (re.test(email.toLowerCase())) {
       setPreenchido({...preenchido, email: true});
@@ -86,6 +90,7 @@ export default function RegisterForm({ dadosRecebidos, setErro }) {
   }
 
   const validaData = (data) => {
+    // regex => {dois numeros}/{dois numeros}/{quatro numeros}
     const date_regex = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
     const dataEnvio = moment().format('YYYY-MM-DD');
     const dataValidacao = moment(data, 'DD/MM/YYYY').format('YYYY-MM-DD');

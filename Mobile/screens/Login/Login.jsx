@@ -16,78 +16,87 @@ import LoginForm from '../../components/LoginForm';
 
 
 export default function Login({ navigation }) {
-    const [offset] = useState(new Animated.ValueXY({x:0, y:90}));
-    const [opacity] = useState(new Animated.Value(0));
-    const [logo] = useState(new Animated.ValueXY({x:200, y:0}));
-    const [erro, setErro] = useState(undefined);
+  // valores inciais de posição, opacidade e tamanho para que as animações ocorram
+  const [offset] = useState(new Animated.ValueXY({x:0, y:90}));
+  const [opacity] = useState(new Animated.Value(0));
+  const [logo] = useState(new Animated.ValueXY({x:200, y:0}));
+
+  // variável onde será armazenada as mensagens de erro, caso tenha
+  const [erro, setErro] = useState(undefined);
 
 
-    useEffect(() => {
-      keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
-      keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', keyboardDidHide);
+  useEffect(() => {
+    // listeners de teclado, para quando o teclado subir, o logo diminuir,
+    // e quando o teclado fechar, o logo aumentar novamente
+    keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
+    keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', keyboardDidHide);
 
-      Animated.parallel([
-        Animated.spring(offset.y, {
-          toValue: 0,
-          speed: 4,
-          bounciness: 20,
-          useNativeDriver: false
-        }),
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: false
-        })
-      ]).start()
-    }, [])
-
-    const keyboardDidShow = () => {
-      Animated.timing(logo.x, {
-        toValue: 150,
-        duration: 100,
+    Animated.parallel([
+      // sobe o container de login
+      Animated.spring(offset.y, {
+        toValue: 0,
+        speed: 4,
+        bounciness: 20,
         useNativeDriver: false
-      }).start()
-    }
-
-    const keyboardDidHide = () => {
-      Animated.timing(logo.x, {
-        toValue: 200,
-        duration: 100,
+      }),
+      // aumenta a opacidade dele
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
         useNativeDriver: false
-      }).start()
-    }
+      })
+    ]).start()
+  }, [])
 
-    return (
-        <ScreenSchema>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={styles.containerLogo}>
-              <Animated.Image style={{
-                width: logo.x,
-                resizeMode: "contain",
-              }} source={require("../../assets/icon.png")} />
-            </View>
-          </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <Animated.View style={[
-              styles.container,
+  const keyboardDidShow = () => {
+    Animated.timing(logo.x, {
+      toValue: 150,
+      duration: 100,
+      useNativeDriver: false
+    }).start()
+  }
+
+  const keyboardDidHide = () => {
+    Animated.timing(logo.x, {
+      toValue: 200,
+      duration: 100,
+      useNativeDriver: false
+    }).start()
+  }
+
+  return (
+      <ScreenSchema>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={styles.containerLogo}>
+            <Animated.Image style={{
+              width: logo.x,
+              resizeMode: "contain",
+            }} source={require("../../assets/icon.png")} />
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <Animated.View style={[
+            styles.container,
+            {
+              opacity: opacity,
+              transform: [
+                { translateY: offset.y}
+              ]
+            }
+          ]}>
+            <Text style={styles.title}>VacinApp</Text>
+            <View style={styles.subContainer}>
               {
-                opacity: opacity,
-                transform: [
-                  { translateY: offset.y}
-                ]
+                // caso haja algum erro durante o login, será mostrado aqui o erro que foi retornado
+                erro &&
+                <Text style={styles.erro}>{erro}</Text>
               }
-            ]}>
-              <Text style={styles.title}>VacinApp</Text>
-              <View style={styles.subContainer}>
-                { erro && 
-                  <Text style={styles.erro}>{erro}</Text>
-                }
-                <LoginForm styles={styles} navigation={navigation} setErro={setErro}/>
-              </View>
-            </Animated.View>
-          </TouchableWithoutFeedback>
-        </ScreenSchema>
-    );
+              <LoginForm styles={styles} navigation={navigation} setErro={setErro}/>
+            </View>
+          </Animated.View>
+        </TouchableWithoutFeedback>
+      </ScreenSchema>
+  );
 }
 
 const styles = StyleSheet.create({

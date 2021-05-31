@@ -52,6 +52,7 @@ const verificaVacinaConcluida = async (id) => {
   return {vacinacao, concluido: ultimaVacina.concluido};
 };
 
+// TODO: A ser implementado
 const rotinaAutoDeleteVacina = async (id, dataRetorno="Sem Retorno") => {
   let vacinacao;
   let concluido = false;
@@ -84,16 +85,24 @@ const rotinaAutoDeleteVacina = async (id, dataRetorno="Sem Retorno") => {
 }
 
 router.get("/:id", authenticateTokenPaciente, (req, res) => {
+  // * Procura os registros de vacinações do paciente no banco de dados, e retorna apenas as que estão concluídas,
+  // * ou seja, as que o paciente escaneou o código QR
   Vacinacao.find({ paciente: req.params.id }).then((documents) => {
+    // Para cada registro de vacinação
     for (let index = 0; index < documents.length; index++) {
       let vacinacao = documents[index];
+      // Para cada dose do registro de vacinação
       for (let dose = 0; dose < vacinacao.vacinas.length; dose++) {
         let vacina = vacinacao.vacinas[dose];
+        // ? Está concluída
         if (!vacina.concluido) {
+          // ! Caso não esteja, remove da lista
           vacinacao.vacinas.splice(dose, 1);
         }
       }
+      // ? A lista de doses ficou vazia
       if(vacinacao.vacinas.length <= 0) {
+        // * Caso sim, remove o registro de vacinação da lista de vacinações
         documents.splice(index, 1);
       }
     }
@@ -106,7 +115,9 @@ router.post("", authenticateTokenEnfermeiro, async (req, res) => {
   const query = { paciente: req.body.paciente, doenca: req.body.doenca };
   const vacinacao = await Vacinacao.findOne(query);
 
+  // ? Existe um registro de vacinação dessa doença para esse paciente já existente no banco
   if (!vacinacao) {
+    // ! Caso não exista, cria um registro novo
     const novaVacinacao = new Vacinacao({
       paciente: req.body.paciente,
       doenca: req.body.doenca,
@@ -132,25 +143,38 @@ router.post("", authenticateTokenEnfermeiro, async (req, res) => {
       });
     });
   } else {
+    // * Caso exista...
+
+    // pega a lista de vacinas (doses) aplicadas no paciente
     const vacinas = vacinacao.vacinas;
+
+    // separa a última vacina tomada
     const ultimaVacina = vacinas[vacinas.length - 1];
 
+    // guarda o status de se a vacinação está dentro do prazo
     const vacinaDentroDoPrazoTotal = vacinaDentroDoPrazo(
       ultimaVacina.dataAplicacao,
       vacinacao.prazoMaximoEntreDoses,
       vacinacao.dataRetorno
     );
 
+    // guarda o status de se a vacinação está dentro do número de doses da vacina
     const vacinaDentroDasDoses = vacinacao.doses > vacinas.length;
-    const vacinaMesmoFabricante =
-      ultimaVacina.fabricante === req.body.vacina.fabricante;
 
+    // guarda status de se a vacina é do mesmo fabricante da dose anterior
+    const vacinaMesmoFabricante = ultimaVacina.fabricante === req.body.vacina.fabricante;
+
+    // ? Última dose está com status de concluido
     if (ultimaVacina.concluido) {
+      // * Caso sim,
+
+      // ? A dose está dentro do prazo, dentro do número total de doses e é do mesmo fabricante que a anterior
       if (
         vacinaDentroDoPrazoTotal &&
         vacinaDentroDasDoses &&
         vacinaMesmoFabricante
       ) {
+        // * Caso sim, adiciona uma nova vacina a lista de vacinas
         console.log("Dose aplicada");
         vacinas.push({
           ...req.body.vacina,
@@ -165,23 +189,31 @@ router.post("", authenticateTokenEnfermeiro, async (req, res) => {
             dose: vacinas.length - 1,
           });
         });
-      } else if (
+      }
+      // ! Caso não,
+      // ? As doses estão completas e a vacina está dentro do prazo de proteção
+      else if (
         !vacinaDentroDasDoses &&
         vacinaDentroDoTempoProtecao(
           vacinacao.tempoTotalProtecao,
           ultimaVacina.dataAplicacao
         )
       ) {
+        // * Caso sim, a vacinação já está completa e não há nada a se fazer
         console.log("Vacinação já completa");
         res.status(200).send({
           mensagem: "Vacinação já completa",
         });
-      } else if (
+      }
+      // ! Caso não,
+      // ? A vacina está fora do prazo máximo entre doses
+      else if (
         !vacinaDentroDoPrazoMax(
           ultimaVacina.dataAplicacao,
           vacinacao.prazoMaximoEntreDoses
         )
       ) {
+        // * Caso esteja, será resetada a lista de doses, como se fosse uma vacinação nova
         console.log("Resetando vacinação");
         vacinacao.vacinas = [
           {
@@ -198,7 +230,11 @@ router.post("", authenticateTokenEnfermeiro, async (req, res) => {
             dose: 0,
           });
         });
-      } else if (!vacinaDentroDoPrazoMin(vacinacao.dataRetorno)) {
+      }
+      // ! Caso não esteja,
+      // ? A data da vacinação é antes da data de retorno
+      else if (!vacinaDentroDoPrazoMin(vacinacao.dataRetorno)) {
+        // * Caso seja, será retornada a mensagem a baixo.
         console.log(
           "Vacinação não permitida, pois está antes da data de retorno."
         );
@@ -206,7 +242,11 @@ router.post("", authenticateTokenEnfermeiro, async (req, res) => {
           mensagem:
             "Vacinação não permitida, pois está antes da data de retorno.",
         });
-      } else if (!vacinaMesmoFabricante) {
+      }
+      // ! Caso não seja,
+      // ? A vacina é de fabricante diferente da dose anterior
+      else if (!vacinaMesmoFabricante) {
+        // * Caso seja, será retornada a mensagem a baixo.
         console.log(
           "Vacinação não permitida, pois a vacinação ainda está no prazo, mas são vacinas de fabricantes diferentes."
         );
@@ -214,12 +254,15 @@ router.post("", authenticateTokenEnfermeiro, async (req, res) => {
           mensagem:
             "Vacinação não permitida, pois a vacinação ainda está no prazo, mas são vacinas de fabricantes diferentes.",
         });
-      } else {
-        res.status(400).send({
+      }
+      // ! Caso não seja, será retornado erro desconhecido
+      else {
+        res.status(500).send({
           mensagem: "Erro desconhecido",
         });
       }
     } else {
+      // ! Caso a última vacina não esteja concluída, será retornada as informações da vacina que está pendente
       res.status(200).json({
         mensagem: "Vacinação Pendente",
         id: vacinacao._id,

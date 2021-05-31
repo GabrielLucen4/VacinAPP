@@ -21,9 +21,12 @@ const axios = require("axios");
 function Table({ tabela }) {
   const history = useHistory();
 
+  // colunas/cabeçalho
   const [columns, setColumns] = useState([]);
+  // linhas
   const [dadosTabela, setDadosTabela] = useState([]);
 
+  // * labels para cada item do banco
   const labels = {
     nome: "Nome",
     cpf: "CPF",
@@ -40,6 +43,7 @@ function Table({ tabela }) {
     tempoTotalProtecao: "Tempo total de proteção"
   }
 
+  // * labels que não serão exibidas na tabela
   const nonLabels = [
     "_id",
     "__v",
@@ -48,8 +52,12 @@ function Table({ tabela }) {
 
   const { token } = useContext(StoreContext);
 
+  // * Configurações das colunas de admin e ações
   const optionsColumns = {
     admin: {
+      // ? renderiza o icone de acordo com status de admin,
+      // * caso seja admin: ✅
+      // ! caso não seja admin: ❌
       customBodyRender: (value, tableMeta, updateValue) => {
         if (value) {
           return (
@@ -67,8 +75,10 @@ function Table({ tabela }) {
       }
     },
     acoes: {
+      // renderiza o botão de editar para as tabelas de enfermeiros e vacinas
       customBodyRender: () => {
         return (
+          // TODO: Funcionalidade a ser implementada
           <button className="botao">Editar</button>
         );
       }
@@ -77,6 +87,7 @@ function Table({ tabela }) {
 
   useEffect(() => {
     const accessAllowed = () => {
+      // * verifica se o usuário está logado para poder accesar a página de tabelas
       return tokenValidation(token).then(status => {
         if (status === 403) {
           history.push('/');
@@ -84,11 +95,11 @@ function Table({ tabela }) {
       })
     }
     const getDadosTabela = () => {
+      // * pega os dados da tabela que foi selecionada
       axios
       .get(`http://localhost:4000/api/${tabela}`, { headers: { "Authorization": `Bearer ${token}` }})
       .then((response) => {
         setDadosTabela(Array.from(response.data));
-          console.log(1)
           renderCabecalho(Array.from(response.data));
         })
         .catch((err) => {
@@ -100,6 +111,7 @@ function Table({ tabela }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabela]);
 
+  // * configurações de estilo da tabela
   const getMuiTheme = () => createMuiTheme({
     overrides: {
      MUIDataTable: {
@@ -118,18 +130,28 @@ function Table({ tabela }) {
   })
 
   const renderCabecalho = (dadosTabela) => {
+    // * renderiza o cabeçalho de acordo com as chaves recebidas do banco
     const col = [];
     if (dadosTabela.length > 0) {
+      // pega as chaves do objeto
       const cabecalho = Object.keys(dadosTabela[0]);
+
+      // remove todas as chaves que são caracterizadas como "nonLabel"
+      // como as chaves incluidas pelo próprio mongo, como "_id" e "__v"
       for (let index = 0; index < cabecalho.length; index++) {
         let item = cabecalho[index];
         if (nonLabels.includes(item)) {
           cabecalho.splice(index, 1);
         }
       }
+
+      // para cada item do cabecalhos (array de chaves do objeto)
+      // é passado o nome, a label que é configurada no objeto "labels",
+      // e as opções caso tenha (como no caso do admin)
       for (let item of cabecalho) {
         col.push({name: item, label: labels[item], options: optionsColumns[item]})
       }
+      // ! se for não for a tabela de pacientes, a coluna "Ações" com os botões editar também é carregada
       if (tabela !== 'pacientes') {
         col.push({name:"acoes", label: "Ações", options: optionsColumns.acoes})
       }
@@ -137,8 +159,9 @@ function Table({ tabela }) {
     }
   };
 
+  // * configurações das linhas
   const options = {
-    filter: true,
+    filter: true, 
     filterType: 'dropdown',
     selectableRowsHideCheckboxes: true,
     selectableRows: 'single',
@@ -165,7 +188,7 @@ function Table({ tabela }) {
       <MuiThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           className="table"
-          title={tabela.charAt(0).toUpperCase() + tabela.slice(1)}
+          title={tabela.charAt(0).toUpperCase() + tabela.slice(1) /* pega a primeira letra da string e a coloca em maiúsculo. Ex: enfermeiros => Enfermeiros*/}
           columns={columns}
           data={dadosTabela}
           options={options}

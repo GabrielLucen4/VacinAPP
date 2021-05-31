@@ -26,11 +26,17 @@ const theme = {
 };
 
 export default function App() {
+  // variável de estado, onde o useEffect fica verificando mudanças
+  // caso mude, ele vai validar o token novo.
   const [userToken, setUserToken] = React.useState("");
+  // variável com estado do token se é válido (true) ou não (false)
   const [validToken, setValidToken] = React.useState(false);
 
   useEffect(() => {
     const validToken = async () => {
+      // quando o userToken mudar
+      // a função pega o token do armazenamento assíncrono
+      // e verifica se é um token válido ou não.
       const token = await AsyncStorage.getItem("token");
       console.log(token);
       const status = await tokenValidation(token);
@@ -40,6 +46,7 @@ export default function App() {
     validToken();
   }, [userToken]);
 
+  // funções de autenticação
   const authContext = React.useMemo(() => ({
     signIn: async (email, senha) => {
       const token = await login(email, senha);
@@ -58,9 +65,10 @@ export default function App() {
       setUserToken(null);
     },
     signUp: async (nome, cpf, dataNasc, email, senha) => {
+      // envia o registro do usuário, cadastrando-o no banco de dados
       const erro = await enviaRegistro(nome, cpf, dataNasc, email, senha);
-      console.log('2', erro);
       if (!erro) {
+        // caso não ocorra nenhum erro, será feito o login do usuário novo
         const token = await login(email, senha);
         try {
           await AsyncStorage.setItem("token", token);
@@ -82,6 +90,8 @@ export default function App() {
       <PaperProvider theme={theme}>
         <NavigationContainer>
           {
+            // caso o token seja válido, será carregada a stack main (telas Main e QrCodeScanner)
+            // caso contrário, será carregada a stack de login/cadastro
             validToken
             ? <MainStack />
             : <LoginCadastroStack />

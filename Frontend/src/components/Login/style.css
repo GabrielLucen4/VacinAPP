@@ -8,11 +8,19 @@
   height: 100vh;
 }
 
-.titulo-login {
+.titulo-login, .erro {
   font-family: Roboto, Arial, Helvetica, sans-serif;
+}
+
+.titulo-login {
   font-size: 3em;
   font-weight: 600;
   color: var(--texto);
+}
+
+.erro {
+  text-align: center;
+  color: red;
 }
 
 .formulario-login {

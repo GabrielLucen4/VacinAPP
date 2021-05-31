@@ -21,11 +21,14 @@ import './style.css';
 
 function Login(props) {
   const { classes } = props;
+  const history = useHistory();
 
   const [coren, setCoren] = useState("");
   const [senha, setSenha] = useState("");
+
   const { token, setToken } = useContext(StoreContext);
-  const history = useHistory();
+
+  const [erro, setErro] = useState(false);
 
   const theme = createMuiTheme({
     palette: {
@@ -54,6 +57,8 @@ function Login(props) {
       console.log(data);
       setToken(data.accessToken);
       history.push('/pacientes');
+    }).catch(err => {
+      setErro(true)
     });
 
   }
@@ -63,6 +68,11 @@ function Login(props) {
       <h2 className="titulo-login">VacinApp</h2>
       <ThemeProvider theme={theme}>
         <form className="formulario-login" onSubmit={onSubmit}>
+          {
+            erro && (
+              <h3 className="erro">E-mail/Senha inválidos</h3>
+            )
+          }
           <TextField
             label="COREN"
             id="coren"
@@ -87,9 +97,9 @@ function Login(props) {
             }}
           />
           <Button variant="contained" color="primary" size="large" type="submit">
-            <Link className="reset-a" to="/pacientes">
+            <p className="reset-a">
               Login
-            </Link>
+            </p>
           </Button>
         </form>
       </ThemeProvider>

@@ -50,6 +50,7 @@ function CadastroVacina(props) {
   }
 
   const validaDoenca = (doenca) => {
+    // * nome da doença não pode estar vazia
     if (doenca.length > 0) {
       setPreenchido({...preenchido, doenca:true})
       validaFormulario({...preenchido, doenca: true})
@@ -61,6 +62,7 @@ function CadastroVacina(props) {
 
 
   const validaDose = (dose) => {
+    // * dose não pode ser menor do que 0
     if (dose > 0) {
       setPreenchido({...preenchido, dose: true});
       validaFormulario({...preenchido, dose: true});
@@ -71,6 +73,7 @@ function CadastroVacina(props) {
   }
 
   const validaLote = (lote) => {
+    // * lote não pode estar vazio
     if(lote.length > 0) {
       setPreenchido({...preenchido, lote: true});
       validaFormulario({...preenchido, lote: true});
@@ -81,6 +84,7 @@ function CadastroVacina(props) {
   }
 
   const validaQuantidade = (quantidade) => {
+    // * quantidade não pode ser menor do que 0
     if (quantidade > 0) {
       setPreenchido({...preenchido, quantidade: true});
       validaFormulario({...preenchido, quantidade: true});
@@ -91,6 +95,7 @@ function CadastroVacina(props) {
   }
 
   const validaPrazoMaximoEntreDoses = (prazoMaximoEntreDoses) => {
+    // * prazoMaximoEntreDoses não pode ser menor do que 0
     if (prazoMaximoEntreDoses > 0) {
       setPreenchido({...preenchido, prazoMaximoEntreDoses: true});
       validaFormulario({...preenchido, prazoMaximoEntreDoses: true});
@@ -101,6 +106,7 @@ function CadastroVacina(props) {
   }
 
   const validaTempoTotalProtecao = (tempoTotalProtecao) => {
+    // * tempoTotalProtecao não pode ser menor do que 0
     if (tempoTotalProtecao > 0) {
       setPreenchido({...preenchido, tempoTotalProtecao: true});
       validaFormulario({...preenchido, tempoTotalProtecao: true});
@@ -222,7 +228,7 @@ function CadastroVacina(props) {
               margin="normal"
               type="number"
               helperText="Em dias"
-              error={erros.lote}
+              error={erros.prazoMaximoEntreDoses}
               style={{ marginRight: 12 }}
               InputProps={{ className: classes.input }}
               fullWidth
@@ -242,7 +248,7 @@ function CadastroVacina(props) {
               margin="normal"
               type="number"
               helperText="Em meses"
-              error={erros.quantidade}
+              error={erros.tempoTotalProtecao}
               style={{ marginLeft: 12 }}
               InputProps={{ className: classes.input }}
               fullWidth

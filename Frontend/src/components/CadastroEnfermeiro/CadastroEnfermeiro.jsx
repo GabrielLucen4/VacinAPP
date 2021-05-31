@@ -50,6 +50,7 @@ function CadastroEnfermeiro(props) {
   }
 
   const validaNome = (nome, message="") => {
+    // * nome deve conter pelo menos um sobrenome
     if (nome.split(" ").length >= 2) {
       setPreenchido({...preenchido, nome: {value: true, message: ""}})
       validaFormulario({...preenchido, nome: {value: true, message: ""}})
@@ -61,7 +62,8 @@ function CadastroEnfermeiro(props) {
 
 
   const validaEmail = (email, message="") => {
-    // algumacoisa@algumacois.algumacoisa
+    // * e-mail deve seguir o padrão abaixo e não existir no banco de dados
+    // ? {algumacoisa}@{algumacoisa}.{algumacoisa}
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (re.test(email.toLowerCase())) {
       getByField('email', email, token).then((emails) => {
@@ -87,7 +89,8 @@ function CadastroEnfermeiro(props) {
   }
 
   const validaCoren = (coren, message="") => {
-    // 3numeros.3numeros.3sumeros-2letras
+    // * coren deve seguir o padrão abaixo e não existir no banco de dados
+    // ? 3numeros.3numeros.3numeros-2letras
     const re = /^([0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[a-zA-Z]{2})$/;
     if (re.test(coren.toUpperCase()) && coren.split('-').length === 2) {
       getByField('coren', coren, token).then((corens) => {
@@ -112,6 +115,7 @@ function CadastroEnfermeiro(props) {
   }
 
   const validaSenha = (senha, message="") => {
+    // * senha deve conter pelo menos 5 caracteres
     if(senha.length >= 5) {
       setPreenchido({...preenchido, senha: {value: true, message: ""}});
       validaFormulario({...preenchido, senha: {value: true, message: ""}});
@@ -122,6 +126,7 @@ function CadastroEnfermeiro(props) {
   }
 
   const validaConfirmarSenha = (confirmarSenha, message="") => {
+    // * confirma senha deve ser igual a senha
     if (confirmarSenha === senha) {
       setPreenchido({...preenchido, confirmarSenha: {value: true, message: ""}});
       validaFormulario({...preenchido, confirmarSenha: {value: true, message: ""}});
