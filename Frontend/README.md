@@ -1,70 +1,194 @@
-# Getting Started with Create React App
+# Informações técnicas sobre a parte Web
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Validação de campos
 
-## Available Scripts
+### Funcionamento
+Cada formulário contém um objeto de estado chamado preenchido.
+Como esse:
 
-In the project directory, you can run:
+```
+  const [preenchido, setPreenchido] =  useState({
+    nome: {value: false, message: ""},
+    email: {value: false, message: ""},
+    coren: {value: false, message: ""},
+    senha: {value: false, message: ""},
+    confirmarSenha: {value: false, message: ""}
+  });
+```
 
-### `npm start`
+Nele é guardado o estado e o texto de ajuda caso haja algum erro.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Cada campo TextField contém sua função onChange que valida o campo a cada caracter for incluído ou retirado do campo.
+E a função onBlur que é acionada quando o usuário sai do campo. Nela, é validado o campo uma última vez passando o texto de ajuda - helperText - para caso o campo esteja preenchido incorretamente. E aciona o objeto erro, que serve somente para efeito visual, que caso a informação não esteja preenchida de forma correta, o campo ficará vermelho sinalizando o erro.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```
+<TextField
+  label="Nome"
+  id="nome"
+  helperText={preenchido.nome.message}
+  variant="outlined"
+  margin="normal"
+  error={erros.nome}
+  InputProps={{ className: classes.input }}
+  onChange={(event) => {
+    let nome = event.target.value.trim();
+    setNome(nome);
+    validaNome(nome);
+  }}
+  onBlur={() => {
+    validaNome(nome, "É necessário pelo menos um sobrenome.")
+    setErros({...erros, nome: !preenchido.nome.value})
+  }}
+/>
+```
 
-### `npm test`
+A função que cuida da validação do campo, verifica se a regra daquele campo está satisfeita (no caso do exemplo do nome, conter pelo menos um sobrenome).
+Caso esteja, ele vai marcar no objeto "preenchido" o campo como "true", ou seja, está preenchido corretamente.
+E por fim irá acionar a função validaFormulário, na qual verifica se todos os campos do objeto preenchido estão marcados como "true", para que o botão de enviar o formulário seja liberado.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+const validaNome = (nome, message="") => {
+    // * nome deve conter pelo menos um sobrenome
+    if (nome.split(" ").length >= 2) {
+      setPreenchido({...preenchido, nome: {value: true, message: ""}})
+      validaFormulario({...preenchido, nome: {value: true, message: ""}})
+    } else {
+      setPreenchido({...preenchido, nome: {value: false, message }})
+      validaFormulario({...preenchido, nome: {value: false, message}})
+    }
+  }
+```
 
-### `npm run build`
+**Nota**: Como o helperText (argumento message na função de validar) é passado somente na função onBlur, o mesmo só aparecerá caso o usuário saia do campo e ele esteja errado.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+ ---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Regras de validação de cada campo
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Agora que vimos como funciona a validação dos campos. Vamos às regras de cada um deles.
 
-### `npm run eject`
+#### Formulário de cadastro de enfermeiro:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. Nome: Deve conter pelo menos um sobrenome. Exemplo: Rodrigo Lins. Somente "Rodrigo" não iria passar.
+2. E-mail: é validado pela expressão regular abaixo, na qual identifica o padrão {alguma_coisa}@{alguma_coisa}.{alguma_coisa}
+```
+/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+```
+3. COREN: é válidado pela expressão regular abaixo, na qual identifica o seguinte padrão para o coren: {3 números}.{3 números}.{3 números}-{2 letras}
+4. Senha: deve conter pelo menos 5 caractéres.
+5. Conrirma Senha: deve conter o mesmo valor do campo senha.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### Formulário de cadastro da vacina:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+1. Doença: Não pode estar vazio.
+2. Fabricante: Não pode estar vazio.
+3. Lote: Não pode estar vazio.
+4. Quantidade: Não pode ter uma quantidade menor ou igual a 0.
+5. Prazo Máxio Entre Doses: Não pode ser menor ou igual a 0.
+6. Tempo Limite de Proteção: Não pode ser menor ou igual a 0.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+#### Formulário de registro de vacinação:
+1. Vacina: deve existir no banco de dados.
+2. Paciente: deve existir no banco de dados.
+3. Data de retorno: é validada pela seguinte expressão regular abaixo, na qual identifica o seguinte padrão: {2 números}/{2 números}/{4 números}.*
+```
+/^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/
+```
+*Apesar da validação desse campo conter menos critérios do que deveria, esse campo irá sumir em futuras atualizações. Na qual a data de retorno será calculada automaticamente pelo sistema.
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Registro de Vacinação
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Esse é o principal processo do sistema e o motivo pelo qual ele foi construído. No qual é responsável por gerar o código QR para que o paciente possa confirmar a vacinação escaneando-o pelo aplicativo do VacinApp.
 
-### Code Splitting
+### Como funciona esse processo?
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Quando o enfermeiro clica no botão vacinar, é feito o seguinte processo:
+1. O sistema pega as informações do formulário e os formata para fazer a chamada ao Backend:
+```
+const payload = {
+    paciente: paciente._id,
+    doenca: vacina.doenca,
+    doses: vacina.dose,
+    vacina: {
+      fabricante: vacina.fabricante,
+      lote: vacina.lote,
+      enfermeiroNome: enfermeiroInfo.nome,
+      enfermeiroCoren: enfermeiroInfo.coren,
+      concluido: false,
+    },
+    dataRetorno: dataRetorno,
+    prazoMaximoEntreDoses: vacina.prazoMaximoEntreDoses,
+    tempoTotalProtecao: vacina.tempoTotalProtecao
+  }
+```
+* Esse campo **concluido** é inicialmente marcado como "false", para sinalizar que a vacinação ainda não foi confirmada pelo paciente.
 
-### Analyzing the Bundle Size
+2. O Backend poderá retornar as seguintes respostas:
+* Caso a vacinação seja registrada com sucesso, será retornada a mensagem do backend, o id da vacinação e a dose que foi aplicada:
+```
+{
+  mensagem: "Vacinação registrada",
+  id: 123abc456,
+  dose: 0
+}
+```
+* Caso dê algum erro durante o registro da vacinação, será retornada somente a mensagem:
+```
+{
+  mensagem: "Dose não aplicada, pois é de fabricante diferente da dose anteriror"
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+3. A função de gerar o QR Code recebe a resposta do backend e configura as informações do QR code, que é "{id da vacinação} {dose}" e a mensagem. Caso haja erro, ou seja, só retorne a mensagem, as informações do QR code serão colocodas como uma string vazia. Por fim, marca o modal como "true" para que ele possa aparecer e exibir as informações.
+```
+const geraQrCode = () => {
+    console.log("Chamando")
+    // cadastra vacinação no banco
+    cadastraVacinacao(vacina, paciente, dataRetorno, token).then(response => {
+      // verifica se a resposta tem o id da vacinação
+      if ('id' in response) {
+        // * caso tenha, ele coloca a mensagem e as informações para gerar o QR Code
+        setMessage(response.mensagem);
+        setQRCodeInfo(`${response.id} ${response.dose}`);
+      } else {
+        // ! caso não tenha, ele só coloca a mensagem e não gera o QR Code
+        setMessage(response.mensagem);
+        setQRCodeInfo("");
+      }
+      setModalIsOpen(true);
+    })
+  }
+```
 
-### Making a Progressive Web App
+4. No modal só será exibido o QR code caso ele receba as informações do banco de dados:
+```
+<Modal isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)} style={{
+  overlay: {
+    zIndex: 999,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)'
+  },
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    width: 500,
+    height: 500,
+    alignItems:"center",
+    margin: 'auto',
+  }
+}}>
+  <h2>{message}</h2>
+  {
+  qrCodeInfo &&
+    <QRCode
+      value={qrCodeInfo}
+      size={450}
+      level={"H"}
+      includeMargin={true}/>
+  }
+</Modal>
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Nota**: O QR code é gerado pela biblioteca "react-qr-code".
