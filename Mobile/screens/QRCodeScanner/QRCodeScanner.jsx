@@ -62,7 +62,7 @@ export default function QRCodeVacinaScanner({ navigation }) {
         hasCameraPermission === null
         ? <Text style={{ color: "#FFF" }}>Solicitando permissão de câmera.</Text>
         : hasCameraPermission === false
-          ? <Text style={{ color: "#FFF" }}>Permição de câmera negada!</Text>
+          ? <Text style={{ color: "#FFF" }}>Permissão de câmera negada!</Text>
           : <BarCodeScanner
               onBarCodeScanned={scanned ? undefined : handleQrCodeRead}
               style={{

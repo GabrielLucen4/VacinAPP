@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 
-import MUIDataTable from 'mui-datatables';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
+import MUIDataTable from "mui-datatables";
+import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
+import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from "@material-ui/icons/Add";
 import Done from "@material-ui/icons/Done";
 import Close from "@material-ui/icons/Close";
 
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory } from "react-router-dom";
 
-import StoreContext from '../Store/Context';
+import StoreContext from "../Store/Context";
+import Loading from "../Loading";
 
 import { tokenValidation } from "../../controllers/token";
 
@@ -25,6 +26,7 @@ function Table({ tabela }) {
   const [columns, setColumns] = useState([]);
   // linhas
   const [dadosTabela, setDadosTabela] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // * labels para cada item do banco
   const labels = {
@@ -40,15 +42,11 @@ function Table({ tabela }) {
     lote: "Lote",
     quantidade: "Quantidade",
     prazoMaximoEntreDoses: "Prazo máximo entre doses",
-    tempoTotalProtecao: "Tempo total de proteção"
-  }
+    tempoTotalProtecao: "Tempo total de proteção",
+  };
 
   // * labels que não serão exibidas na tabela
-  const nonLabels = [
-    "_id",
-    "__v",
-    "refreshToken"
-  ]
+  const nonLabels = ["_id", "__v", "refreshToken"];
 
   const { token } = useContext(StoreContext);
 
@@ -62,17 +60,17 @@ function Table({ tabela }) {
         if (value) {
           return (
             <Tooltip title="Sim">
-              <Done color="primary"/>
+              <Done color="primary" />
             </Tooltip>
           );
         } else {
           return (
             <Tooltip title="Não">
-              <Close color="secondary"/>
+              <Close color="secondary" />
             </Tooltip>
           );
         }
-      }
+      },
     },
     acoes: {
       // renderiza o botão de editar para as tabelas de enfermeiros e vacinas
@@ -81,26 +79,31 @@ function Table({ tabela }) {
           // TODO: Funcionalidade a ser implementada
           <button className="botao">Editar</button>
         );
-      }
-    }
-  }
+      },
+    },
+  };
 
   useEffect(() => {
     const accessAllowed = () => {
       // * verifica se o usuário está logado para poder accesar a página de tabelas
-      return tokenValidation(token).then(status => {
+      return tokenValidation(token).then((status) => {
         if (status === 403) {
-          history.push('/');
+          history.push("/");
         }
-      })
-    }
+      });
+    };
     const getDadosTabela = () => {
       // * pega os dados da tabela que foi selecionada
+      setIsLoading(true);
       axios
-      .get(`http://localhost:4000/api/${tabela}`, { headers: { "Authorization": `Bearer ${token}` }})
-      .then((response) => {
-        setDadosTabela(Array.from(response.data));
+        .get(
+          `https://us-central1-vacinapp-1.cloudfunctions.net/server/api/${tabela}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((response) => {
+          setDadosTabela(Array.from(response.data));
           renderCabecalho(Array.from(response.data));
+          setIsLoading(false);
         })
         .catch((err) => {
           console.log(err);
@@ -108,26 +111,27 @@ function Table({ tabela }) {
     };
     accessAllowed();
     getDadosTabela();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabela]);
 
   // * configurações de estilo da tabela
-  const getMuiTheme = () => createMuiTheme({
-    overrides: {
-     MUIDataTable: {
-      paper: {
-        borderRadius: 10,
-        border: 'none'
-       }
-     },
-     MUIDataTableToolbarSelect:{
-       root: {
-         borderTopLeftRadius: 10,
-         borderTopRightRadius: 10
-       }
-     }
-    }
-  })
+  const getMuiTheme = () =>
+    createMuiTheme({
+      overrides: {
+        MUIDataTable: {
+          paper: {
+            borderRadius: 10,
+            border: "none",
+          },
+        },
+        MUIDataTableToolbarSelect: {
+          root: {
+            borderTopLeftRadius: 10,
+            borderTopRightRadius: 10,
+          },
+        },
+      },
+    });
 
   const renderCabecalho = (dadosTabela) => {
     // * renderiza o cabeçalho de acordo com as chaves recebidas do banco
@@ -149,51 +153,71 @@ function Table({ tabela }) {
       // é passado o nome, a label que é configurada no objeto "labels",
       // e as opções caso tenha (como no caso do admin)
       for (let item of cabecalho) {
-        col.push({name: item, label: labels[item], options: optionsColumns[item]})
+        col.push({
+          name: item,
+          label: labels[item],
+          options: optionsColumns[item],
+        });
       }
       // ! se for não for a tabela de pacientes, a coluna "Ações" com os botões editar também é carregada
-      if (tabela !== 'pacientes') {
-        col.push({name:"acoes", label: "Ações", options: optionsColumns.acoes})
+      if (tabela !== "pacientes") {
+        col.push({
+          name: "acoes",
+          label: "Ações",
+          options: optionsColumns.acoes,
+        });
       }
-      setColumns(col)
+      setColumns(col);
     }
   };
 
   // * configurações das linhas
   const options = {
-    filter: true, 
-    filterType: 'dropdown',
+    filter: true,
+    filterType: "dropdown",
     selectableRowsHideCheckboxes: true,
-    selectableRows: 'single',
-    responsive: 'vertical',
+    selectableRows: "single",
+    responsive: "vertical",
+    rowsPerPage:8,
     rowsPerPageOptions: [],
     customToolbarSelect: () => {},
     customToolbar: () => {
-      if (tabela !== 'pacientes') {
+      if (tabela !== "pacientes") {
         return (
           <Tooltip title="Adicionar">
             <Link to={`/${tabela}/cadastrar`}>
               <IconButton>
-                  <AddIcon />
+                <AddIcon />
               </IconButton>
             </Link>
           </Tooltip>
-        )
+        );
       }
-    }
-  }
+    },
+  };
 
   return (
     <div className="container-table">
-      <MuiThemeProvider theme={getMuiTheme()}>
-        <MUIDataTable
-          className="table"
-          title={tabela.charAt(0).toUpperCase() + tabela.slice(1) /* pega a primeira letra da string e a coloca em maiúsculo. Ex: enfermeiros => Enfermeiros*/}
-          columns={columns}
-          data={dadosTabela}
-          options={options}
-          />
-      </MuiThemeProvider>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <div className="sub-container-table">
+          <MuiThemeProvider theme={getMuiTheme()}>
+            <MUIDataTable
+              className="table"
+              title={
+                tabela.charAt(0).toUpperCase() +
+                tabela.slice(
+                  1
+                ) /* pega a primeira letra da string e a coloca em maiúsculo. Ex: enfermeiros => Enfermeiros*/
+              }
+              columns={columns}
+              data={dadosTabela}
+              options={options}
+            />
+          </MuiThemeProvider>
+        </div>
+      )}
     </div>
   );
 }

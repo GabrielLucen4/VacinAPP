@@ -18,6 +18,7 @@ import { login } from "../../controllers/enfermeiros";
 import { tokenValidation } from "../../controllers/token";
 
 import './style.css';
+import Loading from "../Loading/Loading";
 
 function Login(props) {
   const { classes } = props;
@@ -29,6 +30,7 @@ function Login(props) {
   const { token, setToken } = useContext(StoreContext);
 
   const [erro, setErro] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const theme = createMuiTheme({
     palette: {
@@ -41,8 +43,10 @@ function Login(props) {
 
 
   useEffect(() => {
+    setIsLoading(true);
     const accessAllowed = () => {
       return tokenValidation(token).then(status => {
+        setIsLoading(false);
         if (status === 200) history.push("/pacientes");
       })
     }
@@ -53,56 +57,65 @@ function Login(props) {
   const onSubmit = (event) => {
     event.preventDefault();
 
+    setIsLoading(true);
     login(coren, senha).then(({ data }) => {
+      setIsLoading(false);
       console.log(data);
       setToken(data.accessToken);
       history.push('/pacientes');
     }).catch(err => {
-      setErro(true)
+      setIsLoading(false);
+      setErro(true);
     });
 
   }
 
   return (
     <div className="container-login">
-      <h2 className="titulo-login">VacinApp</h2>
-      <ThemeProvider theme={theme}>
-        <form className="formulario-login" onSubmit={onSubmit}>
-          {
-            erro && (
-              <h3 className="erro">E-mail/Senha inválidos</h3>
-            )
-          }
-          <TextField
-            label="COREN"
-            id="coren"
-            variant="outlined"
-            margin="normal"
-            InputProps={{ className: classes.input }}
-            onChange={(event) => {
-              setCoren(event.target.value);
-            }}
-          />
-          <TextField
-            label="Senha"
-            id="senha"
-            variant="outlined"
-            margin="normal"
-            type="password"
-            style={{ marginRight: 12 }}
-            InputProps={{ className: classes.input }}
-            fullWidth
-            onChange={(event) => {
-              setSenha(event.target.value);
-            }}
-          />
-          <Button variant="contained" color="primary" size="large" type="submit">
-            <p className="reset-a">
-              Login
-            </p>
-          </Button>
-        </form>
-      </ThemeProvider>
+      {
+        isLoading
+        ? <Loading/>
+        : <React.Fragment>
+          <h2 className="titulo-login">VacinApp</h2>
+          <ThemeProvider theme={theme}>
+            <form className="formulario-login" onSubmit={onSubmit}>
+              {
+                erro && (
+                  <h3 className="erro">E-mail/Senha inválidos</h3>
+                )
+              }
+              <TextField
+                label="COREN"
+                id="coren"
+                variant="outlined"
+                margin="normal"
+                InputProps={{ className: classes.input }}
+                onChange={(event) => {
+                  setCoren(event.target.value);
+                }}
+              />
+              <TextField
+                label="Senha"
+                id="senha"
+                variant="outlined"
+                margin="normal"
+                type="password"
+                style={{ marginRight: 12 }}
+                InputProps={{ className: classes.input }}
+                fullWidth
+                onChange={(event) => {
+                  setSenha(event.target.value);
+                }}
+              />
+              <Button variant="contained" color="primary" size="large" type="submit">
+                <p className="reset-a">
+                  Login
+                </p>
+              </Button>
+            </form>
+          </ThemeProvider>
+        </React.Fragment>
+      }
     </div>
   );
 }

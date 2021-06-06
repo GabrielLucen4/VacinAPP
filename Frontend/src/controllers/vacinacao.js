@@ -25,13 +25,15 @@ export function cadastraVacinacao(vacina, paciente, dataRetorno, token) {
   console.log(payload);
 
   // chama a api para fazer o registro da vacinação no banco de dados
-  return axios.post('http://localhost:4000/api/vacinacao', payload, {headers: { "Authorization": `Bearer ${token}` }})
+  return axios.post('https://us-central1-vacinapp-1.cloudfunctions.net/server/api/vacinacao', payload, {headers: { "Authorization": `Bearer ${token}` }})
   .then(response => response.data)
   .catch(err => err.response.data);
 }
 
+// NÃO IMPLEMENTADA
 export async function estaConcluida(id, token) {
-  return axios.get(`http://localhost:4000/api/vacinacao/concluida/${id}`, {headers: { "Authorization": `Bearer ${token}` }})
+  // função para verificar se a vacina está concluida para fechar o código QR e resetar o formulário de vacinação
+  return axios.get(`https://us-central1-vacinapp-1.cloudfunctions.net/api/vacinacao/concluida/${id}`, {headers: { "Authorization": `Bearer ${token}` }})
   .then(response => response.data)
   .catch(err => err);
 }

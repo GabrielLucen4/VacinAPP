@@ -1,16 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
 
 import PropTypes from "prop-types";
 import { createMuiTheme, withStyles, ThemeProvider } from "@material-ui/core/styles";
 import { TextField, Button } from "@material-ui/core";
 
+import StoreContext from "../Store/Context";
+import Loading from '../Loading';
+
+import { tokenValidation } from "../../controllers/token";
 import { enviaRegistro } from "../../controllers/vacinas";
 import "./style.css";
 
 function CadastroVacina(props) {
   const { classes } = props;
   const history = useHistory();
+
+  const { token } = useContext(StoreContext)
+  const [isLoading, setIsLoading] = useState(false);
 
   const [doenca, setDoenca] = useState("");
   const [fabricante, setFabricante] = useState("");
@@ -37,6 +44,19 @@ function CadastroVacina(props) {
     prazoMaximoEntreDoses: false,
     tempoTotalProtecao: false
   });
+
+  useEffect(() => {
+    const accessAllowed = () => {
+      // * verifica se o usuário está logado para poder accesar a página de tabelas
+      return tokenValidation(token).then((status) => {
+        if (status === 403) {
+          history.push("/");
+        }
+      });
+    };
+    accessAllowed();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   const validaFormulario = (preenchido) =>{
@@ -127,147 +147,156 @@ function CadastroVacina(props) {
 
   return (
     <div className="container-cadastro">
-      <h2 className="titulo-cadastro">Cadastrar Vacina</h2>
-      <ThemeProvider theme={theme}>
-        <form className="formulario-cadastro">
-          <TextField
-            label="Doença"
-            id="doenca"
-            helperText="Ex.: Covid19, Febre Amarela, HPV"
-            variant="outlined"
-            margin="normal"
-            error={erros.doenca}
-            InputProps={{ className: classes.input }}
-            onChange={(event) => {
-              let doenca = event.target.value.trim();
-              setDoenca(doenca);
-              validaDoenca(doenca);
-            }}
-            onBlur={() => {
-              setErros({...erros, doenca: !preenchido.doenca})
-            }}
-          />
-          <TextField
-            label="Fabricante"
-            id="fabricante"
-            type="text"
-            helperText="Ex.: CoronaVac, "
-            variant="outlined"
-            margin="normal"
-            InputProps={{ className: classes.input }}
-            onChange={(event) => {
-              let fabricante = event.target.value.trim();
-              setFabricante(fabricante);
-            }}
-          />
-          <TextField
-            label="Doses"
-            id="doses"
-            helperText="Quantidade de doses que são necessárias para o paciente tomar."
-            error={erros.dose}
-            type="number"
-            variant="outlined"
-            margin="normal"
-            InputProps={{ className: classes.input }}
-            onChange={(event) => {
-              let dose = event.target.value.trim();
-              setDose(dose);
-              validaDose(dose);
-            }}
-            onBlur={() => {
-              setErros({...erros, dose: !preenchido.dose});
-            }}
-          />
-          <div className="lote-info">
-            <TextField
-              label="Lote"
-              id="lote"
-              variant="outlined"
-              margin="normal"
-              type="text"
-              helperText="Código de lote das vacinas"
-              error={erros.lote}
-              style={{ marginRight: 12 }}
-              InputProps={{ className: classes.input }}
-              fullWidth
-              onChange={(event) => {
-                let lote = event.target.value.trim();
-                setLote(lote);
-                validaLote(lote);
-              }}
-              onBlur={() => {
-                setErros({...erros, lote: !preenchido.lote})
-              }}
-            />
-            <TextField
-              label="Quantidade"
-              id="quantidade"
-              variant="outlined"
-              margin="normal"
-              type="number"
-              helperText="Quantidade de vacinas que vieram no lote"
-              error={erros.quantidade}
-              style={{ marginLeft: 12 }}
-              InputProps={{ className: classes.input }}
-              fullWidth
-              onChange={(event) => {
-                let quantidade = event.target.value.trim();
-                setQuantidade(quantidade);
-                validaQuantidade(quantidade);
-              }}
-              onBlur={() => {
-                setErros({...erros, quantidade: !preenchido.quantidade})
-              }}
-            />
-          </div>
-          <div className="lote-info">
-            <TextField
-              label="Tempo max. entre doses"
-              id="lote"
-              variant="outlined"
-              margin="normal"
-              type="number"
-              helperText="Em dias"
-              error={erros.prazoMaximoEntreDoses}
-              style={{ marginRight: 12 }}
-              InputProps={{ className: classes.input }}
-              fullWidth
-              onChange={(event) => {
-                let prazoMaxEntreDoses = event.target.value.trim();
-                setPrazoMaximoEntreDoses(prazoMaxEntreDoses);
-                validaPrazoMaximoEntreDoses(prazoMaxEntreDoses);
-              }}
-              onBlur={() => {
-                setErros({...erros, prazoMaximoEntreDoses: !preenchido.prazoMaximoEntreDoses})
-              }}
-            />
-            <TextField
-              label="Tempo total de proteção"
-              id="quantidade"
-              variant="outlined"
-              margin="normal"
-              type="number"
-              helperText="Em meses"
-              error={erros.tempoTotalProtecao}
-              style={{ marginLeft: 12 }}
-              InputProps={{ className: classes.input }}
-              fullWidth
-              onChange={(event) => {
-                let tempoTotalProtecao = event.target.value.trim();
-                setTempoTotalProtecao(tempoTotalProtecao);
-                validaTempoTotalProtecao(tempoTotalProtecao);
-              }}
-              onBlur={() => {
-                setErros({...erros, tempoTotalProtecao: !preenchido.tempoTotalProtecao})
-              }}
-            />
-          </div>
-          <Button disabled={!formularioValido} variant="contained" color="primary" size="large" onClick={() => {
-            enviaRegistro(doenca, fabricante, dose, lote, quantidade, prazoMaximoEntreDoses, tempoTotalProtecao);
-            history.push("/vacinas");
-          }}><p className="reset-a">Cadastrar Vacina</p></Button>
-        </form>
-      </ThemeProvider>
+      {
+        isLoading
+        ? <Loading/>
+        :
+        <React.Fragment>
+          <h2 className="titulo-cadastro">Cadastrar Vacina</h2>
+          <ThemeProvider theme={theme}>
+            <form className="formulario-cadastro">
+              <TextField
+                label="Doença"
+                id="doenca"
+                helperText="Ex.: Covid19, Febre Amarela, HPV"
+                variant="outlined"
+                margin="normal"
+                error={erros.doenca}
+                InputProps={{ className: classes.input }}
+                onChange={(event) => {
+                  let doenca = event.target.value.trim();
+                  setDoenca(doenca);
+                  validaDoenca(doenca);
+                }}
+                onBlur={() => {
+                  setErros({...erros, doenca: !preenchido.doenca})
+                }}
+              />
+              <TextField
+                label="Fabricante"
+                id="fabricante"
+                type="text"
+                helperText="Ex.: CoronaVac, "
+                variant="outlined"
+                margin="normal"
+                InputProps={{ className: classes.input }}
+                onChange={(event) => {
+                  let fabricante = event.target.value.trim();
+                  setFabricante(fabricante);
+                }}
+              />
+              <TextField
+                label="Doses"
+                id="doses"
+                helperText="Quantidade de doses que são necessárias para o paciente tomar."
+                error={erros.dose}
+                type="number"
+                variant="outlined"
+                margin="normal"
+                InputProps={{ className: classes.input }}
+                onChange={(event) => {
+                  let dose = event.target.value.trim();
+                  setDose(dose);
+                  validaDose(dose);
+                }}
+                onBlur={() => {
+                  setErros({...erros, dose: !preenchido.dose});
+                }}
+              />
+              <div className="lote-info">
+                <TextField
+                  label="Lote"
+                  id="lote"
+                  variant="outlined"
+                  margin="normal"
+                  type="text"
+                  helperText="Código de lote das vacinas"
+                  error={erros.lote}
+                  style={{ marginRight: 12 }}
+                  InputProps={{ className: classes.input }}
+                  fullWidth
+                  onChange={(event) => {
+                    let lote = event.target.value.trim();
+                    setLote(lote);
+                    validaLote(lote);
+                  }}
+                  onBlur={() => {
+                    setErros({...erros, lote: !preenchido.lote})
+                  }}
+                />
+                <TextField
+                  label="Quantidade"
+                  id="quantidade"
+                  variant="outlined"
+                  margin="normal"
+                  type="number"
+                  helperText="Quantidade de vacinas que vieram no lote"
+                  error={erros.quantidade}
+                  style={{ marginLeft: 12 }}
+                  InputProps={{ className: classes.input }}
+                  fullWidth
+                  onChange={(event) => {
+                    let quantidade = event.target.value.trim();
+                    setQuantidade(quantidade);
+                    validaQuantidade(quantidade);
+                  }}
+                  onBlur={() => {
+                    setErros({...erros, quantidade: !preenchido.quantidade})
+                  }}
+                />
+              </div>
+              <div className="lote-info">
+                <TextField
+                  label="Tempo max. entre doses"
+                  id="lote"
+                  variant="outlined"
+                  margin="normal"
+                  type="number"
+                  helperText="Em dias"
+                  error={erros.prazoMaximoEntreDoses}
+                  style={{ marginRight: 12 }}
+                  InputProps={{ className: classes.input }}
+                  fullWidth
+                  onChange={(event) => {
+                    let prazoMaxEntreDoses = event.target.value.trim();
+                    setPrazoMaximoEntreDoses(prazoMaxEntreDoses);
+                    validaPrazoMaximoEntreDoses(prazoMaxEntreDoses);
+                  }}
+                  onBlur={() => {
+                    setErros({...erros, prazoMaximoEntreDoses: !preenchido.prazoMaximoEntreDoses})
+                  }}
+                />
+                <TextField
+                  label="Tempo total de proteção"
+                  id="quantidade"
+                  variant="outlined"
+                  margin="normal"
+                  type="number"
+                  helperText="Em meses"
+                  error={erros.tempoTotalProtecao}
+                  style={{ marginLeft: 12 }}
+                  InputProps={{ className: classes.input }}
+                  fullWidth
+                  onChange={(event) => {
+                    let tempoTotalProtecao = event.target.value.trim();
+                    setTempoTotalProtecao(tempoTotalProtecao);
+                    validaTempoTotalProtecao(tempoTotalProtecao);
+                  }}
+                  onBlur={() => {
+                    setErros({...erros, tempoTotalProtecao: !preenchido.tempoTotalProtecao})
+                  }}
+                />
+              </div>
+              <Button disabled={!formularioValido} variant="contained" color="primary" size="large" onClick={async () => {
+                setIsLoading(true);
+                await enviaRegistro(doenca, fabricante, dose, lote, quantidade, prazoMaximoEntreDoses, tempoTotalProtecao);
+                setIsLoading(false);
+                history.push("/vacinas");
+              }}><p className="reset-a">Cadastrar Vacina</p></Button>
+            </form>
+          </ThemeProvider>
+        </React.Fragment>
+      }
     </div>
   );
 }

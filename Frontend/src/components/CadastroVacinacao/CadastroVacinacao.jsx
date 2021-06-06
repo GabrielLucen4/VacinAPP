@@ -159,7 +159,7 @@ function CadastroVacinacao(props) {
       if ('id' in response) {
         // * caso tenha, ele coloca a mensagem e as informações para gerar o QR Code
         setMessage(response.mensagem);
-        setQRCodeInfo(`${response.id} ${response.dose}`);
+        setQRCodeInfo(`${response.id} ${response.dose}`); // 123abc 0
       } else {
         // ! caso não tenha, ele só coloca a mensagem e não gera o QR Code
         setMessage(response.mensagem);

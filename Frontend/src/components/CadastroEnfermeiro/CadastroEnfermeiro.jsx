@@ -1,19 +1,25 @@
-import React, { useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 
 import PropTypes from "prop-types";
 import { createMuiTheme, withStyles, ThemeProvider } from "@material-ui/core/styles";
 import { TextField, Button, Checkbox, FormControlLabel } from "@material-ui/core";
 
+
+import { tokenValidation } from "../../controllers/token";
 import { enviaRegistro, getByField } from "../../controllers/enfermeiros";
 import "./style.css";
 
+import Loading from '../Loading';
 import StoreContext from '../Store/Context';
+
 
 function CadastroEnfermeiro(props) {
   const { classes } = props;
+  const history = useHistory();
 
   const { token } = useContext(StoreContext);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -37,6 +43,19 @@ function CadastroEnfermeiro(props) {
     senha: {value: false, message: ""},
     confirmarSenha: {value: false, message: ""}
   });
+
+  useEffect(() => {
+    const accessAllowed = () => {
+      // * verifica se o usuário está logado para poder accesar a página de tabelas
+      return tokenValidation(token).then((status) => {
+        if (status === 403) {
+          history.push("/");
+        }
+      });
+    };
+    accessAllowed();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   const validaFormulario = (preenchido) =>{
@@ -147,124 +166,134 @@ function CadastroEnfermeiro(props) {
 
   return (
     <div className="container-cadastro">
-      <h2 className="titulo-cadastro">Cadastrar Enfermeiro</h2>
-      <ThemeProvider theme={theme}>
-        <form className="formulario-cadastro">
-          <TextField
-            label="Nome"
-            id="nome"
-            helperText={preenchido.nome.message}
-            variant="outlined"
-            margin="normal"
-            error={erros.nome}
-            InputProps={{ className: classes.input }}
-            onChange={(event) => {
-              let nome = event.target.value.trim();
-              setNome(nome);
-              validaNome(nome);
-            }}
-            onBlur={() => {
-              validaNome(nome, "É necessário pelo menos um sobrenome.")
-              setErros({...erros, nome: !preenchido.nome.value})
-            }}
-          />
-          <TextField
-            label="E-mail"
-            id="email"
-            type="email"
-            helperText={preenchido.email.message}
-            variant="outlined"
-            margin="normal"
-            error={erros.email}
-            InputProps={{ className: classes.input }}
-            onChange={(event) => {
-              let email = event.target.value.trim();
-              console.log(email);
-              setEmail(email);
-              validaEmail(email);
-            }}
-            onBlur={() => {
-              validaEmail(email, "E-mail inválido.")
-              setErros({...erros, email: !preenchido.email.value});
-            }}
-          />
-          <TextField
-            label="COREN"
-            id="coren"
-            helperText={preenchido.coren.message}
-            error={erros.coren}
-            variant="outlined"
-            margin="normal"
-            InputProps={{ className: classes.input }}
-            onChange={(event) => {
-              let coren = event.target.value.trim();
-              if (coren.length > 14) {
-                coren = coren.substring(0, 8);
-              }
-              setCoren(coren);
-              validaCoren(coren);
-            }}
-            onBlur={() => {
-              validaCoren(coren, "COREN inválido! Siga o modelo: 000.000.000-SP.");
-              setErros({...erros, coren: !preenchido.coren.value});
-            }}
-          />
-          <div className="senhas">
-            <TextField
-              label="Senha"
-              id="senha"
-              variant="outlined"
-              margin="normal"
-              type="password"
-              helperText={preenchido.senha.message}
-              error={erros.senha}
-              style={{ marginRight: 12 }}
-              InputProps={{ className: classes.input }}
-              fullWidth
-              onChange={(event) => {
-                let senha = event.target.value.trim();
-                setSenha(senha);
-                validaSenha(senha);
-              }}
-              onBlur={() => {
-                validaSenha(senha, "Senha deve conter pelo menos 5 caractéres.");
-                setErros({...erros, senha: !preenchido.senha.value});
-              }}
-            />
-            <TextField
-              label="Confirmar Senha"
-              id="confirmarSenha"
-              variant="outlined"
-              margin="normal"
-              type="password"
-              helperText={preenchido.confirmarSenha.message}
-              error={erros.confirmarSenha}
-              style={{ marginLeft: 12 }}
-              InputProps={{ className: classes.input }}
-              fullWidth
-              onChange={(event) => {
-                let confirmarSenha = event.target.value.trim();
-                setConfirmarSenha(confirmarSenha);
-                validaConfirmarSenha(confirmarSenha);
-              }}
-              onBlur={() => {
-                validaConfirmarSenha(confirmarSenha, "A confirmação da senha deve ser igual a senha.");
-                setErros({...erros, confirmarSenha: !preenchido.confirmarSenha.value});
-              }}
-            />
-          </div>
-          <FormControlLabel
-            label="Administrador"
-            control={
-              <Checkbox color="primary" onChange={(event) => {
-                setAdmin(event.target.checked);
-              }}/>
-            }/>
-          <Button disabled={!formularioValido} variant="contained" color="primary" size="large" onClick={() => {
-            enviaRegistro(nome, email, coren, senha, admin);
-          }}><Link className="reset-a" to="/enfermeiros">Cadastrar Enfermeiro</Link></Button>
-        </form>
-      </ThemeProvider>
+      {
+        isLoading
+        ? <Loading/>
+        :
+        <React.Fragment>
+          <h2 className="titulo-cadastro">Cadastrar Enfermeiro</h2>
+          <ThemeProvider theme={theme}>
+            <form className="formulario-cadastro">
+              <TextField
+                label="Nome"
+                id="nome"
+                helperText={preenchido.nome.message}
+                variant="outlined"
+                margin="normal"
+                error={erros.nome}
+                InputProps={{ className: classes.input }}
+                onChange={(event) => {
+                  let nome = event.target.value.trim();
+                  setNome(nome);
+                  validaNome(nome);
+                }}
+                onBlur={() => {
+                  validaNome(nome, "É necessário pelo menos um sobrenome.")
+                  setErros({...erros, nome: !preenchido.nome.value})
+                }}
+              />
+              <TextField
+                label="E-mail"
+                id="email"
+                type="email"
+                helperText={preenchido.email.message}
+                variant="outlined"
+                margin="normal"
+                error={erros.email}
+                InputProps={{ className: classes.input }}
+                onChange={(event) => {
+                  let email = event.target.value.trim();
+                  console.log(email);
+                  setEmail(email);
+                  validaEmail(email);
+                }}
+                onBlur={() => {
+                  validaEmail(email, "E-mail inválido.")
+                  setErros({...erros, email: !preenchido.email.value});
+                }}
+              />
+              <TextField
+                label="COREN"
+                id="coren"
+                helperText={preenchido.coren.message}
+                error={erros.coren}
+                variant="outlined"
+                margin="normal"
+                InputProps={{ className: classes.input }}
+                onChange={(event) => {
+                  let coren = event.target.value.trim();
+                  if (coren.length > 14) {
+                    coren = coren.substring(0, 8);
+                  }
+                  setCoren(coren);
+                  validaCoren(coren);
+                }}
+                onBlur={() => {
+                  validaCoren(coren, "COREN inválido! Siga o modelo: 000.000.000-SP.");
+                  setErros({...erros, coren: !preenchido.coren.value});
+                }}
+              />
+              <div className="senhas">
+                <TextField
+                  label="Senha"
+                  id="senha"
+                  variant="outlined"
+                  margin="normal"
+                  type="password"
+                  helperText={preenchido.senha.message}
+                  error={erros.senha}
+                  style={{ marginRight: 12 }}
+                  InputProps={{ className: classes.input }}
+                  fullWidth
+                  onChange={(event) => {
+                    let senha = event.target.value.trim();
+                    setSenha(senha);
+                    validaSenha(senha);
+                  }}
+                  onBlur={() => {
+                    validaSenha(senha, "Senha deve conter pelo menos 5 caractéres.");
+                    setErros({...erros, senha: !preenchido.senha.value});
+                  }}
+                />
+                <TextField
+                  label="Confirmar Senha"
+                  id="confirmarSenha"
+                  variant="outlined"
+                  margin="normal"
+                  type="password"
+                  helperText={preenchido.confirmarSenha.message}
+                  error={erros.confirmarSenha}
+                  style={{ marginLeft: 12 }}
+                  InputProps={{ className: classes.input }}
+                  fullWidth
+                  onChange={(event) => {
+                    let confirmarSenha = event.target.value.trim();
+                    setConfirmarSenha(confirmarSenha);
+                    validaConfirmarSenha(confirmarSenha);
+                  }}
+                  onBlur={() => {
+                    validaConfirmarSenha(confirmarSenha, "A confirmação da senha deve ser igual a senha.");
+                    setErros({...erros, confirmarSenha: !preenchido.confirmarSenha.value});
+                  }}
+                />
+              </div>
+              <FormControlLabel
+                label="Administrador"
+                control={
+                  <Checkbox color="primary" onChange={(event) => {
+                    setAdmin(event.target.checked);
+                  }}/>
+                }/>
+              <Button disabled={!formularioValido} variant="contained" color="primary" size="large" onClick={async () => {
+                setIsLoading(true);
+                await enviaRegistro(nome, email, coren, senha, admin);
+                setIsLoading(false);
+                history.push("/enfermeiros");
+              }}><p className="reset-a">Cadastrar Enfermeiro</p></Button>
+            </form>
+          </ThemeProvider>
+        </React.Fragment>
+      }
     </div>
   );
 }
